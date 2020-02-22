@@ -12,6 +12,10 @@ using Cars.Data;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Project.Service.Interfaces;
+using Project.Service.Repository;
+using AutoMapper;
+using Cars.Mappings;
 
 namespace Cars
 {
@@ -30,6 +34,12 @@ namespace Cars
             services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseSqlServer(
                     Configuration.GetConnectionString("DefaultConnection")));
+
+            //add references for Repository and Interfaces
+            services.AddScoped<IVehicleMakeRepository, VehicleMakeRepository>();
+            services.AddScoped<IVehicleModelRepository, VehicleModelRepository>();
+
+            services.AddAutoMapper(typeof(Maps));
 
             services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
                 .AddEntityFrameworkStores<ApplicationDbContext>();
