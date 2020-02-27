@@ -2,7 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Project.Service.Data;
 
-namespace Cars.Data
+namespace Project.Service.Data
 {
     public class ApplicationDbContext : IdentityDbContext
     {

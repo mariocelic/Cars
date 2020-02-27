@@ -2,18 +2,16 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
-namespace Cars.Models
+namespace Cars.ViewModels
 {
-    public class VehicleModelDTO
+    public class VehicleModelVM
     {
         public int ModelId { get; set; }
         [Required]
         public string Name { get; set; }
         public string Abrv { get; set; }
 
-        public VehicleMakeDTO VehicleMake { get; set; }
-        public int MakeId { get; set; }
-
-        public IEnumerable<SelectListItem> VehicleMakes { get; set; }
+        public VehicleMakeVM VehicleMake { get; set; }
+        public int MakeId { get; set; }        
     }
 }

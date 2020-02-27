@@ -1,10 +1,6 @@
 ﻿using AutoMapper;
-using Cars.Models;
+using Cars.ViewModels;
 using Project.Service.Data;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace Cars.Mappings
 {
@@ -12,8 +8,8 @@ namespace Cars.Mappings
     {
         public Maps()
         {
-            CreateMap<VehicleMake, VehicleMakeDTO>().ReverseMap();
-            CreateMap<VehicleModel, VehicleModelDTO>().ReverseMap();
+            CreateMap<VehicleMake, VehicleMakeVM>().ReverseMap();
+            CreateMap<VehicleModel, VehicleModelVM>().ReverseMap();
         }
 
     }

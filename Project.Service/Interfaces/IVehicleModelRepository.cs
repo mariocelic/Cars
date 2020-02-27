@@ -5,7 +5,7 @@ using System.Text;
 
 namespace Project.Service.Interfaces
 {
-    public interface IVehicleModelRepository : IRepositoryBase<VehicleModel>
+    public interface IVehicleModelRepository : IAsyncRepositoryBase<VehicleModel>
     {
     }
 }

@@ -1,10 +1,11 @@
-﻿using Cars.Data;
+﻿using Microsoft.EntityFrameworkCore;
 using Project.Service.Data;
 using Project.Service.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace Project.Service.Repository
 {
@@ -15,35 +16,34 @@ namespace Project.Service.Repository
         {
             _context = context;
         }
-        public void Create(VehicleMake entity)
+        public async Task Create(VehicleMake entity)
         {
-            _context.VehicleMakes.Add(entity);
-            _context.SaveChanges();
+            await _context.Set<VehicleMake>().AddAsync(entity);
+            await _context.SaveChangesAsync();
         }
 
-        public void Delete(VehicleMake entity)
+        public async Task Delete(int id)
         {
-            _context.VehicleMakes.Remove(entity);
-            _context.SaveChanges();
+            var entity = await GetById(id);
+            _context.Set<VehicleMake>().Remove(entity);
+            await _context.SaveChangesAsync();
         }
 
-        public IEnumerable<VehicleMake> GetAll()
+        public async Task<IEnumerable<VehicleMake>> GetAll()
         {
-            var vehicleMakes = _context.VehicleMakes.ToList();
-            return vehicleMakes;
-            
+            return await _context.Set<VehicleMake>().ToListAsync();
         }
 
-        public VehicleMake GetById(int id)
+        public async Task<VehicleMake> GetById(int id)
         {
-            var vehicleMake = _context.VehicleMakes.Find(id);
-            return vehicleMake;
+           return await _context.Set<VehicleMake>().FindAsync(id);            
         }
 
-        public void Update(VehicleMake entity)
+        public async Task Update(VehicleMake entity)
         {
-            _context.VehicleMakes.Update(entity);
-            _context.SaveChanges();        
+            _context.Set<VehicleMake>().Update(entity);
+            await _context.SaveChangesAsync();
         }
+
     }
 }
