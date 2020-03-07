@@ -29,9 +29,12 @@ namespace Project.Service.Repository
             await _context.SaveChangesAsync();
         }
 
-        public async Task<IEnumerable<VehicleMake>> GetAll()
+        
+        public async Task<IList<VehicleMake>> GetAll()
         {
             return await _context.Set<VehicleMake>().ToListAsync();
+            
+            
         }
 
         public async Task<VehicleMake> GetById(int id)

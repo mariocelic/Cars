@@ -8,7 +8,7 @@ namespace Project.Service.Interfaces
 {
     public interface IAsyncRepositoryBase<T> where T : class
     {
-        Task<IEnumerable<T>> GetAll();
+        Task<IList<T>> GetAll();
         Task<T> GetById(int id);
         Task Create(T entity);
         Task Update(T entity);

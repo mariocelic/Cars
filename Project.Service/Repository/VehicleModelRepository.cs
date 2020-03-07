@@ -29,7 +29,7 @@ namespace Project.Service.Repository
             await _context.SaveChangesAsync();
         }
 
-        public async Task<IEnumerable<VehicleModel>> GetAll()
+        public async Task<IList<VehicleModel>> GetAll()
         {
             return await _context.Set<VehicleModel>().ToListAsync();
         }
@@ -44,5 +44,6 @@ namespace Project.Service.Repository
             _context.Set<VehicleModel>().Update(entity);
             await _context.SaveChangesAsync();
         }
+
     }
 }
