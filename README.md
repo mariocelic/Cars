@@ -4,3 +4,4 @@
 - napravljen repository i viewmodeli
 - dodan AutoMapper
 - napravljen CRUD za VehicleMake
+- napravljeno sortiranje i filtriranje
