@@ -31,12 +31,18 @@ namespace Project.Service.Repository
 
         public async Task<IList<VehicleModel>> GetAll()
         {
-            return await _context.Set<VehicleModel>().ToListAsync();
+            var models = await _context.Set<VehicleModel>()
+               .Include(q => q.VehicleMake)
+               .ToListAsync();               ;
+            return models;
         }
 
         public async Task<VehicleModel> GetById(int id)
         {
-            return await _context.Set<VehicleModel>().FindAsync(id);
+            var model = await _context.Set<VehicleModel>()
+                .Include(q => q.VehicleMake)
+                .FirstOrDefaultAsync(q => q.ModelId == id);
+            return model;
         }
 
         public async Task Update(VehicleModel entity)

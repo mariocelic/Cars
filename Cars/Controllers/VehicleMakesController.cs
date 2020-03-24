@@ -8,9 +8,11 @@ using Cars.ViewModels;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
 using System.Linq;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Cars.Controllers
 {
+    [Authorize]
     public class VehicleMakesController : Controller
     {
         private readonly IVehicleMakeRepository _repo;
@@ -22,22 +24,23 @@ namespace Cars.Controllers
             _repo = repo;
             _mapper = mapper;
 
-        } 
+        }
 
         // GET: VehicleMakes
+        [Authorize(Roles = "Administrator, Employee")]
         public async Task<IActionResult> Index(string sortOrder, string searchString)
-                   
+
         {
-            var makes = await _repo.GetAll();                         
-                                   
+            var makes = await _repo.GetAll();
+
             var makeVMs = _mapper.Map<IEnumerable<VehicleMake>, IEnumerable<VehicleMakeVM>>(makes);
 
-            
+
             ViewData["NameSortParam"] = string.IsNullOrEmpty(sortOrder) ? "nameDesc" : "";
             ViewData["Filter"] = searchString;
 
-            var param = from m in makeVMs 
-                       select m;
+            var param = from m in makeVMs
+                        select m;
 
             if (!string.IsNullOrEmpty(searchString))
             {
@@ -56,13 +59,14 @@ namespace Cars.Controllers
             }
 
 
-           
+
             return View(param);
 
-            
+
         }
 
         // GET: VehicleMakes/Details/5
+        [Authorize(Roles = "Administrator")]
         public async Task<IActionResult> Details(int id)
         {
             var make = await _repo.GetById(id);
@@ -78,12 +82,14 @@ namespace Cars.Controllers
         }
 
         // GET: VehicleMakes/Create
+        [Authorize(Roles = "Administrator")]
         public IActionResult Create()
         {
             return View();
         }
 
         // POST: VehicleMakes/Create
+        [Authorize(Roles = "Administrator")]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(VehicleMakeVM makeVM)
@@ -110,6 +116,7 @@ namespace Cars.Controllers
         }
 
         // GET: VehicleMakes/Edit/5
+        [Authorize(Roles = "Administrator")]
         public async Task<IActionResult> Edit(int id)
         {
             var make = await _repo.GetById(id);
@@ -125,6 +132,7 @@ namespace Cars.Controllers
         }
 
         // POST: VehicleMakes/Edit/5
+        [Authorize(Roles = "Administrator")]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(VehicleMakeVM makeVM)
@@ -150,6 +158,7 @@ namespace Cars.Controllers
         }
 
         // GET: VehicleMakes/Delete/5
+        [Authorize(Roles = "Administrator")]
         public async Task<IActionResult> Delete(int id)
         {
             var make = await _repo.GetById(id);
@@ -165,6 +174,7 @@ namespace Cars.Controllers
         }
 
         // POST: VehicleMakes/Delete/5
+        [Authorize(Roles = "Administrator")]
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)

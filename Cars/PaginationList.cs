@@ -9,7 +9,7 @@ namespace Cars
     public class PaginationList<T> : List<T>
     {
         public int PageIndex { get; private set; }
-        public int TotalPages { get; private set; }
+        public int TotalPages { get; set; }
 
         public PaginationList(List<T> items, int count, int pageIndex, int pageSize)
         {
@@ -36,7 +36,7 @@ namespace Cars
             }
         }
 
-        public static async Task<PaginationList<T>> CreateAsync(IQueryable<T> source, IList<Project.Service.Data.VehicleMake> makes, int pageIndex, int pageSize)
+        public static async Task<PaginationList<T>> CreateAsync(IQueryable<T> source, int pageIndex, int pageSize)
         {
             var count = await source.CountAsync();
             var items = await source.Skip((pageIndex - 1) * pageSize).Take(pageSize).ToListAsync();
