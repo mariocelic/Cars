@@ -1,11 +1,9 @@
 ﻿using System.Collections.Generic;
 using AutoMapper;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Project.Service.Data;
 using Project.Service.Interfaces;
 using Cars.ViewModels;
-using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
 using System.Linq;
 using Microsoft.AspNetCore.Authorization;
@@ -15,61 +13,34 @@ namespace Cars.Controllers
     [Authorize]
     public class VehicleMakesController : Controller
     {
-        private readonly IVehicleMakeRepository _repo;
+        private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
         
+        
 
-        public VehicleMakesController(IVehicleMakeRepository repo, IMapper mapper)
+        public VehicleMakesController(IUnitOfWork unitOfWork, IMapper mapper)
         {
-            _repo = repo;
+            _unitOfWork = unitOfWork;
             _mapper = mapper;
-
+            
         }
 
         // GET: VehicleMakes
         [Authorize(Roles = "Administrator, Employee")]
-        public async Task<IActionResult> Index(string sortOrder, string searchString)
+        public async Task<IActionResult> Index()
 
         {
-            var makes = await _repo.GetAll();
+            var makes = await _unitOfWork.VehicleMake.GetAll();
+            var makeVMs = _mapper.Map<IEnumerable<VehicleMake>, IEnumerable<VehicleMakeVM>>(makes);            
 
-            var makeVMs = _mapper.Map<IEnumerable<VehicleMake>, IEnumerable<VehicleMakeVM>>(makes);
-
-
-            ViewData["NameSortParam"] = string.IsNullOrEmpty(sortOrder) ? "nameDesc" : "";
-            ViewData["Filter"] = searchString;
-
-            var param = from m in makeVMs
-                        select m;
-
-            if (!string.IsNullOrEmpty(searchString))
-            {
-                param = param.Where(p => p.Name.Contains(searchString));
-            }
-
-
-            switch (sortOrder)
-            {
-                case "nameDesc":
-                    param = param.OrderByDescending(m => m.Name);
-                    break;
-                default:
-                    param = param.OrderBy(m => m.Name);
-                    break;
-            }
-
-
-
-            return View(param);
-
-
+            return View(makeVMs);
         }
 
         // GET: VehicleMakes/Details/5
         [Authorize(Roles = "Administrator")]
         public async Task<IActionResult> Details(int id)
         {
-            var make = await _repo.GetById(id);
+            var make = await _unitOfWork.VehicleMake.GetById(id);
 
             if (make == null)
             {
@@ -103,7 +74,8 @@ namespace Cars.Controllers
                 }
 
                 var make = _mapper.Map<VehicleMake>(makeVM);
-                await _repo.Create(make);
+                await _unitOfWork.VehicleMake.Create(make);
+                await _unitOfWork.Commit();
                                 
                 
                 return RedirectToAction(nameof(Index));                                     
@@ -119,7 +91,7 @@ namespace Cars.Controllers
         [Authorize(Roles = "Administrator")]
         public async Task<IActionResult> Edit(int id)
         {
-            var make = await _repo.GetById(id);
+            var make = await _unitOfWork.VehicleMake.GetById(id);
 
             if (make == null)
             {
@@ -144,10 +116,12 @@ namespace Cars.Controllers
                 {
                     return View(makeVM);
                 }
-                
 
-                var make = _mapper.Map<VehicleMake>(makeVM);               
-                await _repo.Update(make);
+
+                var makeItem = _mapper.Map<VehicleMake>(makeVM);
+                await _unitOfWork.VehicleMake.Update(makeItem);
+                await _unitOfWork.Commit();
+
 
                 return RedirectToAction(nameof(Index));
             }
@@ -161,7 +135,7 @@ namespace Cars.Controllers
         [Authorize(Roles = "Administrator")]
         public async Task<IActionResult> Delete(int id)
         {
-            var make = await _repo.GetById(id);
+            var make = await _unitOfWork.VehicleMake.GetById(id);
 
             if (make == null)
             {
@@ -181,10 +155,10 @@ namespace Cars.Controllers
         {
             try
             {
-                // TODO: Add delete logic here
-
-                var make = await _repo.GetById(id);
-                await _repo.Delete(id);
+                
+                var make = await _unitOfWork.VehicleMake.GetById(id);
+                await _unitOfWork.VehicleMake.Delete(id);
+                await _unitOfWork.Commit();
 
                 return RedirectToAction(nameof(Index));
             }

@@ -6,20 +6,20 @@
 
 <h1>Create</h1>
 
-<h6>Vehicle Model</h6>
+<h4>Vehicle Model</h4>
 <hr />
 <div class="row">
     <div class="col-md-4">
         <form asp-action="Create">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="ModelId" />
             <div class="form-group">
                 <label asp-for="MakeId" class="control-label"></label>
-                @Html.DropDownListFor(q => q.MakeId, new SelectList(Model.VehicleMakes, "Value", "Text").OrderBy(q=> q.Text), "Select Vehicle Make", new { 
-                @class ="form-control"}
-                )
+                @Html.DropDownListFor(q => q.MakeId, Model.VehicleMakeList, "Select Vehicle Make",
+                new { @class = "form-control" })
+
                 <span asp-validation-for="MakeId" class="text-danger"></span>
             </div>
-            
             <div class="form-group">
                 <label asp-for="Name" class="control-label"></label>
                 <input asp-for="Name" class="form-control" />

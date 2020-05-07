@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 namespace Project.Service.Interfaces
 {
     public interface IVehicleMakeRepository : IAsyncRepositoryBase<VehicleMake>
-    {        
+    {
+        
     }
 }

@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc.Rendering;
+﻿
+using Microsoft.AspNetCore.Mvc.Rendering;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
@@ -11,10 +12,13 @@ namespace Cars.ViewModels
         [Display (Name="Vehicle Model")]
         public string Name { get; set; }
         public string Abrv { get; set; }
+
         [Display(Name = "Vehicle Make")]
-        public VehicleMakeVM VehicleMake { get; set; }
         public int MakeId { get; set; }
-        public List<SelectListItem> VehicleMakes { get; set; }
+        public VehicleMakeVM VehicleMake;
+        
+        
+        public IEnumerable<SelectListItem> VehicleMakeList { get; set; }
                 
         
     }

@@ -15,5 +15,6 @@ namespace Project.Service.Data
         [ForeignKey("MakeId")]
         public VehicleMake VehicleMake { get; set; }
         public int MakeId { get; set; }
+
     }
 }

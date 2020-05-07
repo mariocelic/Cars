@@ -13,22 +13,22 @@
     <a asp-action="Create">Create New</a>
 </p>
 
-<form asp-action="Index" method="get">
-    <div class="form-action no-color">
-        <p>
-            Search by name: <input type="text" name="searchString" value="@ViewData["Filter"]" />
-            <input type="submit" value="Search" class="btn btn-secondary" />
-            <a asp-action="Index">Return to list</a>
+@*<form asp-action="Index" method="get">
+        <div class="form-action no-color">
+            <p>
+                Search by model: <input type="text" name="searchString" value="@ViewData["Filter"]" />
+                <input type="submit" value="Search" class="btn btn-secondary" />
+                <a asp-action="Index">Return to list</a>
 
-        </p>
-    </div>
-</form>
+            </p>
+        </div>
+    </form>*@
 
-<table class="table">
+<table id="tabelIndex" class="table">
     <thead>
         <tr>
             <th>
-                @Html.DisplayNameFor(model => model.VehicleMake)
+                Vehicle Make
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.Name)
@@ -43,30 +43,39 @@
     <tbody>
         @foreach (var item in Model)
         {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.VehicleMake.Name)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Name)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Abrv)
-            </td>
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.VehicleMake.Name)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Name)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Abrv)
+                </td>
 
 
-            @if (SignInManager.IsSignedIn(User))
-            {
-                if (User.IsInRole("Administrator"))
+                @if (SignInManager.IsSignedIn(User))
                 {
-                    <td>
-                        <a asp-action="Edit" asp-route-id="@item.ModelId">Edit</a> |
-                        <a asp-action="Details" asp-route-id="@item.ModelId">Details</a> |
-                        <a asp-action="Delete" asp-route-id="@item.ModelId">Delete</a>
-                    </td>
+                    if (User.IsInRole("Administrator"))
+                    {
+                        <td>
+                            <a asp-action="Edit" asp-route-id="@item.ModelId">Edit</a> |
+                            <a asp-action="Details" asp-route-id="@item.ModelId">Details</a> |
+                            <a asp-action="Delete" asp-route-id="@item.ModelId">Delete</a>
+                        </td>
+                    }
                 }
-            }
-        </tr>
+            </tr>
         }
     </tbody>
 </table>
+
+@section Scripts {
+    <script>
+    $(document).ready(function () {
+        $('#tabelIndex').DataTable();
+    });
+    </script>
+}
+

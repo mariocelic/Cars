@@ -5,7 +5,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Project.Service.Data;
 using Project.Service.Interfaces;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -15,52 +14,25 @@ namespace Cars.Controllers
     [Authorize]
     public class VehicleModelsController : Controller
     {
-        private readonly IVehicleMakeRepository _makerepo;
-        private readonly IVehicleModelRepository _modelrepo;
         private readonly IMapper _mapper;
+        private readonly IUnitOfWork _unitOfWork;
 
 
-        public VehicleModelsController(IVehicleMakeRepository makerepo, IVehicleModelRepository modelrepo, IMapper mapper)
+        public VehicleModelsController(IUnitOfWork unitOfWork, IMapper mapper)
         {
-            _makerepo = makerepo;
-            _modelrepo = modelrepo;
-            _mapper = mapper;
-
+            _unitOfWork = unitOfWork;           
+            _mapper = mapper;            
         }
 
         // GET: VehicleModels
         [Authorize(Roles = "Administrator, Employee")]
-        public async Task<IActionResult> Index(string sortOrder, string searchString)
+        public async Task<IActionResult> Index()
 
         {
-            var models = await _modelrepo.GetAll();
+            var models = await _unitOfWork.VehicleModel.GetAllWithMake();
             var modelVMs = _mapper.Map<IEnumerable<VehicleModel>, IEnumerable<VehicleModelVM>>(models);
             
-            ViewData["NameSortParam"] = string.IsNullOrEmpty(sortOrder) ? "nameDesc" : "";
-            ViewData["Filter"] = searchString;
-
-            var param = from m in modelVMs
-                        select m;
-
-            if (!string.IsNullOrEmpty(searchString))
-            {
-                param = param.Where(p => p.Name.Contains(searchString));
-            }
-
-
-            switch (sortOrder)
-            {
-                case "nameDesc":
-                    param = param.OrderByDescending(m => m.Name);
-                    break;
-                default:
-                    param = param.OrderBy(m => m.Name);
-                    break;
-            }
-
-
-
-            return View(param);
+            return View(modelVMs);
 
 
         }
@@ -69,7 +41,7 @@ namespace Cars.Controllers
         [Authorize(Roles = "Administrator")]
         public async Task<IActionResult> Details(int id)
         {
-            var model = await _modelrepo.GetById(id);
+            var model = await _unitOfWork.VehicleModel.GetByIdWithMake(id);
 
             if (model == null)
             {
@@ -85,19 +57,20 @@ namespace Cars.Controllers
         [Authorize(Roles = "Administrator")]
         public async Task<IActionResult> Create()
         {
-            var makes = await _makerepo.GetAll();
+            var makes = await _unitOfWork.VehicleMake.GetAll();
             var makeItems = makes.Select(q => new SelectListItem
             {
                 Text = q.Name,
                 Value = q.MakeId.ToString()
 
-            }) ;
+            })
+            ;
 
-            var model = new VehicleModelVM
+            var modelVM = new VehicleModelVM
             {
-                VehicleMakes = makeItems.ToList()
+                VehicleMakeList = makeItems.ToList()
             };
-            return View(model);
+            return View(modelVM);
         }
 
         // POST: VehicleModels/Create
@@ -107,27 +80,38 @@ namespace Cars.Controllers
         public async Task<IActionResult> Create(VehicleModelVM modelVM)
         {
             try
+
             {
-                var makes = await _makerepo.GetAll();
+                var makes = await _unitOfWork.VehicleMake.GetAll();
+                
                 var makeItems = makes.Select(q => new SelectListItem
                 {
                     Text = q.Name,
                     Value = q.MakeId.ToString()
 
                 });
-                modelVM.VehicleMakes = makeItems.ToList();                
+
+                modelVM.VehicleMakeList = makeItems.ToList();
+                
 
                 if (!ModelState.IsValid)
                 {
                     return View(modelVM);
                 }
 
-                
-                var model = _mapper.Map<VehicleModel>(modelVM);
-                
+                var newModel = new VehicleModelVM
+                {
+                    ModelId = modelVM.ModelId,
+                    Name = modelVM.Name,
+                    Abrv = modelVM.Abrv,
+                    MakeId = modelVM.MakeId,
+                    VehicleMakeList = modelVM.VehicleMakeList
+                };
+               
+                var carModel =_mapper.Map<VehicleModel>(newModel);
 
-
-                await _modelrepo.Create(model);
+                await _unitOfWork.VehicleModel.Create(carModel);
+                await _unitOfWork.Commit();
 
 
                 return RedirectToAction(nameof(Index));
@@ -143,16 +127,31 @@ namespace Cars.Controllers
         [Authorize(Roles = "Administrator")]
         public async Task<IActionResult> Edit(int id)
         {
-            var model = await _modelrepo.GetById(id);
+            var makes = await _unitOfWork.VehicleMake.GetAll();
+            var makeItems = makes.Select(q => new SelectListItem
+            {
+                Text = q.Name,
+                Value = q.MakeId.ToString()
+
+            })
+            ;
+
+            var modelVM = new VehicleModelVM
+            {
+                VehicleMakeList = makeItems.ToList()
+            };
+
+            var model = await _unitOfWork.VehicleModel.GetById(id);
 
             if (model == null)
             {
                 return NotFound();
             }
 
-
-            var modelVM = _mapper.Map<VehicleModelVM>(model);
-            return View(modelVM);
+            var newModelVM = _mapper.Map<VehicleModelVM>(model);
+            return View(newModelVM);
+            
+            
         }
 
         // POST: VehicleModels/Edit/5
@@ -163,15 +162,34 @@ namespace Cars.Controllers
         {
             try
             {
-                // TODO: Add update logic here
+                var makes = await _unitOfWork.VehicleModel.GetAllWithMake();
+
+                var makeItems = makes.Select(q => new SelectListItem
+                {
+                    Text = q.Name,
+                    Value = q.MakeId.ToString()
+
+                });
+
+                modelVM.VehicleMakeList = makeItems.ToList();
+
+
                 if (!ModelState.IsValid)
                 {
                     return View(modelVM);
                 }
 
-
-                var model = _mapper.Map<VehicleModel>(modelVM);
-                await _modelrepo.Update(model);
+                var newModel = new VehicleModelVM
+                {
+                    ModelId = modelVM.ModelId,
+                    Name = modelVM.Name,
+                    Abrv = modelVM.Abrv,
+                    MakeId = modelVM.MakeId,
+                    VehicleMakeList = modelVM.VehicleMakeList
+                };
+                var model = _mapper.Map<VehicleModel>(newModel);
+                await _unitOfWork.VehicleModel.Update(model);
+                await _unitOfWork.Commit();
 
                 return RedirectToAction(nameof(Index));
             }
@@ -181,11 +199,12 @@ namespace Cars.Controllers
             }
         }
 
+
         // GET: VehicleModels/Delete/5
         [Authorize(Roles = "Administrator")]
         public async Task<IActionResult> Delete(int id)
         {
-            var model = await _modelrepo.GetById(id);
+            var model = await _unitOfWork.VehicleModel.GetByIdWithMake(id);
 
             if (model == null)
             {
@@ -206,9 +225,9 @@ namespace Cars.Controllers
             try
             {
                 
-                var model = await _modelrepo.GetById(id);
-                await _modelrepo.Delete(id);
-
+                var model = await _unitOfWork.VehicleModel.GetByIdWithMake(id);
+                await _unitOfWork.VehicleModel.Delete(id);
+                await _unitOfWork.Commit();
                 return RedirectToAction(nameof(Index));
             }
             catch
