@@ -7,3 +7,5 @@
 - napravljeno sortiranje i filtriranje
 - napravljen CRUD za VehicleModel
 - stavljena autorizacija za administratora (i view-i) i korisnike
+- implemetiran Unit of Work
+- implementiran Autofac
