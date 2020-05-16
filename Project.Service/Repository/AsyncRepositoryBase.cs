@@ -45,16 +45,10 @@ namespace Project.Service.Repository
 
         public async Task Update(T entity)
         {
-            dbSet.Attach(entity);
+            dbSet.Update(entity);
             _context.Entry(entity).State = EntityState.Modified;
             await _context.SaveChangesAsync();
         }
-
-        
-
-        public Task<T> GetFirstOrDefault(Expression<Func<T, bool>> filter = null, string includeProperties = null)
-        {
-            throw new NotImplementedException();
-        }
+              
     }
 }

@@ -27,13 +27,38 @@ namespace Cars.Controllers
 
         // GET: VehicleMakes
         [Authorize(Roles = "Administrator, Employee")]
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string searchString, string sortOrder)
 
         {
             var makes = await _unitOfWork.VehicleMake.GetAll();
-            var makeVMs = _mapper.Map<IEnumerable<VehicleMake>, IEnumerable<VehicleMakeVM>>(makes);            
+            var makeVMs = _mapper.Map<IEnumerable<VehicleMake>, IEnumerable<VehicleMakeVM>>(makes);
 
-            return View(makeVMs);
+            ViewData["NameSortParam"] = string.IsNullOrEmpty(sortOrder) ? "nameDesc" : "";
+            ViewData["Filter"] = searchString;
+
+            var param = from m in makeVMs
+                        select m;
+
+            if (!string.IsNullOrEmpty(searchString))
+            {
+                param = param.Where(p => p.Name.Contains(searchString));
+            }
+
+
+            switch (sortOrder)
+            {
+                case "nameDesc":
+                    param = param.OrderByDescending(m => m.Name);
+                    break;
+                default:
+                    param = param.OrderBy(m => m.Name);
+                    break;
+            }
+
+
+
+            return View(param);
+
         }
 
         // GET: VehicleMakes/Details/5

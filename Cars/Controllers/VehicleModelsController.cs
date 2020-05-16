@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Project.Service.Data;
 using Project.Service.Interfaces;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -26,13 +27,37 @@ namespace Cars.Controllers
 
         // GET: VehicleModels
         [Authorize(Roles = "Administrator, Employee")]
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string sortOrder, string searchString)
 
         {
             var models = await _unitOfWork.VehicleModel.GetAllWithMake();
             var modelVMs = _mapper.Map<IEnumerable<VehicleModel>, IEnumerable<VehicleModelVM>>(models);
-            
-            return View(modelVMs);
+
+            ViewData["NameSortParam"] = string.IsNullOrEmpty(sortOrder) ? "nameDesc" : "";
+            ViewData["Filter"] = searchString;
+
+            var param = from m in modelVMs
+                        select m;
+
+            if (!string.IsNullOrEmpty(searchString))
+            {
+                param = param.Where(p => p.Name.Contains(searchString));
+            }
+
+
+            switch (sortOrder)
+            {
+                case "nameDesc":
+                    param = param.OrderByDescending(m => m.VehicleMake.Name);
+                    break;
+                default:
+                    param = param.OrderBy(m => m.VehicleMake.Name);
+                    break;
+            }
+
+
+
+            return View(param);
 
 
         }
@@ -69,7 +94,8 @@ namespace Cars.Controllers
             var modelVM = new VehicleModelVM
             {
                 VehicleMakeList = makeItems.ToList()
-            };
+            };            
+           
             return View(modelVM);
         }
 
@@ -91,7 +117,7 @@ namespace Cars.Controllers
 
                 });
 
-                modelVM.VehicleMakeList = makeItems.ToList();
+                modelVM.VehicleMakeList = makeItems.ToList().OrderBy(m=>m.Text);
                 
 
                 if (!ModelState.IsValid)
@@ -99,16 +125,9 @@ namespace Cars.Controllers
                     return View(modelVM);
                 }
 
-                var newModel = new VehicleModelVM
-                {
-                    ModelId = modelVM.ModelId,
-                    Name = modelVM.Name,
-                    Abrv = modelVM.Abrv,
-                    MakeId = modelVM.MakeId,
-                    VehicleMakeList = modelVM.VehicleMakeList
-                };
-               
-                var carModel =_mapper.Map<VehicleModel>(newModel);
+
+
+                var carModel =_mapper.Map<VehicleModel>(modelVM);
 
                 await _unitOfWork.VehicleModel.Create(carModel);
                 await _unitOfWork.Commit();
@@ -141,17 +160,18 @@ namespace Cars.Controllers
                 VehicleMakeList = makeItems.ToList()
             };
 
-            var model = await _unitOfWork.VehicleModel.GetById(id);
+            var model = await _unitOfWork.VehicleModel.GetByIdWithMake(id);
 
             if (model == null)
             {
                 return NotFound();
             }
 
-            var newModelVM = _mapper.Map<VehicleModelVM>(model);
-            return View(newModelVM);
-            
-            
+
+            var newModel = _mapper.Map<VehicleModelVM>(model);
+            return View(newModel);
+
+
         }
 
         // POST: VehicleModels/Edit/5
@@ -162,7 +182,7 @@ namespace Cars.Controllers
         {
             try
             {
-                var makes = await _unitOfWork.VehicleModel.GetAllWithMake();
+                var makes = await _unitOfWork.VehicleMake.GetAll();
 
                 var makeItems = makes.Select(q => new SelectListItem
                 {
@@ -179,14 +199,8 @@ namespace Cars.Controllers
                     return View(modelVM);
                 }
 
-                var newModel = new VehicleModelVM
-                {
-                    ModelId = modelVM.ModelId,
-                    Name = modelVM.Name,
-                    Abrv = modelVM.Abrv,
-                    MakeId = modelVM.MakeId,
-                    VehicleMakeList = modelVM.VehicleMakeList
-                };
+                var newModel = new VehicleModelVM { };
+
                 var model = _mapper.Map<VehicleModel>(newModel);
                 await _unitOfWork.VehicleModel.Update(model);
                 await _unitOfWork.Commit();
