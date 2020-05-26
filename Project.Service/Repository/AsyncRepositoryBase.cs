@@ -1,11 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Project.Service.Data;
 using Project.Service.Interfaces;
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Linq.Expressions;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Project.Service.Repository
@@ -21,7 +18,7 @@ namespace Project.Service.Repository
             dbSet = context.Set<T>();
         }
 
-        public async Task<IList<T>> GetAll()
+        public async Task<IEnumerable<T>> GetAll()
         {
             return await dbSet.ToListAsync();
         }
@@ -43,12 +40,13 @@ namespace Project.Service.Repository
             dbSet.Remove(entity);
         }
 
-        public async Task Update(T entity)
+        public void Update(T entity)
         {
-            dbSet.Update(entity);
-            _context.Entry(entity).State = EntityState.Modified;
-            await _context.SaveChangesAsync();
+           dbSet.Update(entity);
+           
+
+
         }
-              
+
     }
 }

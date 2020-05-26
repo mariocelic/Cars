@@ -1,4 +1,4 @@
-﻿@model IEnumerable<Cars.ViewModels.VehicleMakeVM>
+﻿@model PaginationList<Cars.ViewModels.VehicleMakeVM>
 @using Microsoft.AspNetCore.Identity
 @inject SignInManager<IdentityUser> SignInManager
 @inject UserManager<IdentityUser> UserManager
@@ -28,7 +28,7 @@
     <thead>
         <tr>
             <th>
-                <a asp-action="Index" asp-route-sortOrder="@ViewData["NameSortParam"]">@Html.DisplayNameFor(model => model.Name)</a>
+                <a asp-action="Index" asp-route-sortOrder="@ViewData["CurrentFilter"]">Name</a>
             </th>
             <th>
                 Abrv
@@ -40,29 +40,46 @@
         @foreach (var item in Model)
         {
 
-        <tr>
+            <tr>
 
-            <td>
-                @Html.DisplayFor(modelItem => item.Name)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Abrv)
-            </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Name)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Abrv)
+                </td>
 
-            @if (SignInManager.IsSignedIn(User))
-            {
-                if (User.IsInRole("Administrator"))
+                @if (SignInManager.IsSignedIn(User))
                 {
-                    <td>
-                        <a asp-action="Edit" asp-route-id="@item.MakeId">Edit</a> |
-                        <a asp-action="Details" asp-route-id="@item.MakeId">Details</a> |
-                        <a asp-action="Delete" asp-route-id="@item.MakeId">Delete</a>
-                    </td>
+                    if (User.IsInRole("Administrator"))
+                    {
+                        <td>
+                            <a asp-action="Edit" asp-route-id="@item.MakeId">Edit</a> |
+                            <a asp-action="Details" asp-route-id="@item.MakeId">Details</a> |
+                            <a asp-action="Delete" asp-route-id="@item.MakeId">Delete</a>
+                        </td>
 
+                    }
                 }
-            }
-            
-        </tr>
+
+            </tr>
         }
     </tbody>
 </table>
+
+@{
+    var prevDisabled = !Model.PreviousPage ? "disabled" : "";
+    var nextDisabled = !Model.NextPage ? "disabled" : "";
+}
+
+<a asp.action="Index"
+   asp-route-pageNumber="@(Model.PageIndex - 1)"
+   class="btn btn-secondary @prevDisabled">
+    Previous
+</a>
+
+<a asp.action="Index"
+   asp-route-pageNumber="@(Model.PageIndex + 1)"
+   class="btn btn-secondary @nextDisabled">
+    Next
+</a>

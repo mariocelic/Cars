@@ -13,23 +13,23 @@ namespace Project.Service.Repository
         public UnitOfWork (ApplicationDbContext context)
         {
             _context = context;
-            VehicleMake = new VehicleMakeRepository(_context);
-            VehicleModel = new VehicleModelRepository(_context);
+            VehicleMake = new VehicleMakeRepository(context);
+            VehicleModel = new VehicleModelRepository(context);
 
         }
 
         public IVehicleMakeRepository VehicleMake { get; private set; }
         public IVehicleModelRepository VehicleModel { get; private set; }
 
-        
+        public async Task Commit()
+        {
+            await _context.SaveChangesAsync();
+        }
         public void Dispose()
         {
             _context.DisposeAsync();
         }
 
-        public async Task Commit()
-        {
-             await _context.SaveChangesAsync();
-        }
+        
     }
 }

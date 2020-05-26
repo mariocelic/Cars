@@ -1,4 +1,7 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System.Collections;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Linq;
 
 namespace Cars.ViewModels
 {
@@ -9,6 +12,6 @@ namespace Cars.ViewModels
         public string Name { get; set; }        
         public string Abrv { get; set; }
 
-        public VehicleModelVM VehicleModel { get; set; }
+        public VehicleModelVM VehicleModel { get; set; }      
     }
 }

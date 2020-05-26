@@ -27,14 +27,27 @@ namespace Cars.Controllers
 
         // GET: VehicleMakes
         [Authorize(Roles = "Administrator, Employee")]
-        public async Task<IActionResult> Index(string searchString, string sortOrder)
+        public async Task<IActionResult> Index(
+            string sortOrder, 
+            string currentFilter,
+            string searchString,
+            int? pageNumber)
 
         {
             var makes = await _unitOfWork.VehicleMake.GetAll();
-            var makeVMs = _mapper.Map<IEnumerable<VehicleMake>, IEnumerable<VehicleMakeVM>>(makes);
+            var makeVMs = _mapper.Map <IEnumerable<VehicleMake>, IEnumerable<VehicleMakeVM>>(makes);
 
             ViewData["NameSortParam"] = string.IsNullOrEmpty(sortOrder) ? "nameDesc" : "";
-            ViewData["Filter"] = searchString;
+            ViewData["Sort"] = sortOrder;
+
+            if (searchString != null)
+            {
+                pageNumber = 1;
+            }
+            else
+            {
+                searchString = currentFilter;
+            }
 
             var param = from m in makeVMs
                         select m;
@@ -56,8 +69,8 @@ namespace Cars.Controllers
             }
 
 
-
-            return View(param);
+            int pageSize = 5;
+            return View(PaginationList<VehicleMakeVM>.Create(param.AsQueryable(), pageNumber ?? 1, pageSize));
 
         }
 
@@ -144,7 +157,7 @@ namespace Cars.Controllers
 
 
                 var makeItem = _mapper.Map<VehicleMake>(makeVM);
-                await _unitOfWork.VehicleMake.Update(makeItem);
+                _unitOfWork.VehicleMake.Update(makeItem);
                 await _unitOfWork.Commit();
 
 

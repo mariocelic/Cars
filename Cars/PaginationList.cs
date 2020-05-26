@@ -20,7 +20,7 @@ namespace Cars
             AddRange(items);
         }
 
-        public bool HasPreviousPage
+        public bool PreviousPage
         {
             get
             {
@@ -28,7 +28,7 @@ namespace Cars
             }
         }
 
-        public bool HasNextPage
+        public bool NextPage
         {
             get
             {
@@ -36,10 +36,10 @@ namespace Cars
             }
         }
 
-        public static async Task<PaginationList<T>> CreateAsync(IQueryable<T> source, int pageIndex, int pageSize)
+        public static PaginationList<T> Create(IQueryable<T> source, int pageIndex, int pageSize)
         {
-            var count = await source.CountAsync();
-            var items = await source.Skip((pageIndex - 1) * pageSize).Take(pageSize).ToListAsync();
+            var count = source.Count();
+            var items = source.Skip((pageIndex - 1) * pageSize).Take(pageSize).ToList();
             return new PaginationList<T>(items, count, pageIndex, pageSize);
         }
 

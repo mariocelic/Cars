@@ -6,7 +6,6 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Project.Service.Data;
 using Project.Service.Interfaces;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -27,7 +26,11 @@ namespace Cars.Controllers
 
         // GET: VehicleModels
         [Authorize(Roles = "Administrator, Employee")]
-        public async Task<IActionResult> Index(string sortOrder, string searchString)
+        public async Task<IActionResult> Index(
+            string sortOrder,
+            string currentFilter,
+            string searchString,
+            int? pageNumber)
 
         {
             var models = await _unitOfWork.VehicleModel.GetAllWithMake();
@@ -56,8 +59,8 @@ namespace Cars.Controllers
             }
 
 
-
-            return View(param);
+            int pageSize = 5;
+            return View(PaginationList<VehicleModelVM>.Create(param.AsQueryable(), pageNumber ?? 1, pageSize));
 
 
         }
@@ -93,9 +96,10 @@ namespace Cars.Controllers
 
             var modelVM = new VehicleModelVM
             {
-                VehicleMakeList = makeItems.ToList()
-            };            
-           
+
+                VehicleMakeList = makeItems.ToList().OrderBy(m=>m.Text)
+            };
+
             return View(modelVM);
         }
 
@@ -106,10 +110,9 @@ namespace Cars.Controllers
         public async Task<IActionResult> Create(VehicleModelVM modelVM)
         {
             try
-
             {
                 var makes = await _unitOfWork.VehicleMake.GetAll();
-                
+
                 var makeItems = makes.Select(q => new SelectListItem
                 {
                     Text = q.Name,
@@ -117,8 +120,8 @@ namespace Cars.Controllers
 
                 });
 
-                modelVM.VehicleMakeList = makeItems.ToList().OrderBy(m=>m.Text);
-                
+                modelVM.VehicleMakeList = makeItems.ToList();
+
 
                 if (!ModelState.IsValid)
                 {
@@ -126,15 +129,11 @@ namespace Cars.Controllers
                 }
 
 
-
-                var carModel =_mapper.Map<VehicleModel>(modelVM);
-
-                await _unitOfWork.VehicleModel.Create(carModel);
+                var model = _mapper.Map<VehicleModel>(modelVM);
+                await _unitOfWork.VehicleModel.Create(model);
                 await _unitOfWork.Commit();
 
-
                 return RedirectToAction(nameof(Index));
-
             }
             catch
             {
@@ -146,6 +145,13 @@ namespace Cars.Controllers
         [Authorize(Roles = "Administrator")]
         public async Task<IActionResult> Edit(int id)
         {
+            var model = await _unitOfWork.VehicleModel.GetByIdWithMake(id);
+
+            if (model == null)
+            {
+                return NotFound();
+            }
+
             var makes = await _unitOfWork.VehicleMake.GetAll();
             var makeItems = makes.Select(q => new SelectListItem
             {
@@ -155,21 +161,18 @@ namespace Cars.Controllers
             })
             ;
 
-            var modelVM = new VehicleModelVM
+            var newModel = new VehicleModelVM
             {
-                VehicleMakeList = makeItems.ToList()
+                ModelId = model.ModelId,
+                Name = model.Name,
+                Abrv = model.Abrv,
+                MakeId = model.MakeId,
+                VehicleMakeList = makeItems.ToList().OrderBy(m => m.Text)
             };
 
-            var model = await _unitOfWork.VehicleModel.GetByIdWithMake(id);
-
-            if (model == null)
-            {
-                return NotFound();
-            }
-
-
-            var newModel = _mapper.Map<VehicleModelVM>(model);
-            return View(newModel);
+           
+            var modelVM = _mapper.Map<VehicleModelVM>(newModel);
+            return View(modelVM);
 
 
         }
@@ -199,10 +202,9 @@ namespace Cars.Controllers
                     return View(modelVM);
                 }
 
-                var newModel = new VehicleModelVM { };
-
-                var model = _mapper.Map<VehicleModel>(newModel);
-                await _unitOfWork.VehicleModel.Update(model);
+               
+                var model = _mapper.Map<VehicleModel>(modelVM);
+                _unitOfWork.VehicleModel.Update(model);
                 await _unitOfWork.Commit();
 
                 return RedirectToAction(nameof(Index));
