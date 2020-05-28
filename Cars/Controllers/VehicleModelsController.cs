@@ -128,8 +128,9 @@ namespace Cars.Controllers
                     return View(modelVM);
                 }
 
-
+                
                 var model = _mapper.Map<VehicleModel>(modelVM);
+                
                 await _unitOfWork.VehicleModel.Create(model);
                 await _unitOfWork.Commit();
 
