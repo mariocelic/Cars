@@ -10,8 +10,8 @@ using Project.Service.Data;
 namespace Project.Service.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20200604175426_InitialMigration")]
-    partial class InitialMigration
+    [Migration("20200605145015_InitalMigration")]
+    partial class InitalMigration
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
