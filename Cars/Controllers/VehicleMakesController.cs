@@ -37,6 +37,7 @@ namespace Cars.Controllers
             var makes = await _unitOfWork.VehicleMake.GetAll();
             var makeVMs = _mapper.Map <IEnumerable<VehicleMake>, IEnumerable<VehicleMakeVM>>(makes);
 
+            ViewData["CurrentSort"] = sortOrder;
             ViewData["NameSortParam"] = string.IsNullOrEmpty(sortOrder) ? "nameDesc" : "";
             ViewData["Sort"] = sortOrder;
 
@@ -48,6 +49,8 @@ namespace Cars.Controllers
             {
                 searchString = currentFilter;
             }
+
+            ViewData["CurrentFilter"] = searchString;
 
             var param = from m in makeVMs
                         select m;

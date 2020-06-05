@@ -20,7 +20,7 @@ namespace Project.Service.Repository
 
         public async Task<IEnumerable<T>> GetAll()
         {
-            return await dbSet.ToListAsync();
+            return await dbSet.AsNoTracking().ToListAsync();
         }
 
         public async Task<T> GetById(int id)

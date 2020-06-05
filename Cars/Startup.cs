@@ -1,6 +1,12 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.UI;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.EntityFrameworkCore;
 using Project.Service.Data;
 using Microsoft.Extensions.Configuration;
@@ -10,26 +16,17 @@ using Project.Service.Interfaces;
 using Project.Service.Repository;
 using AutoMapper;
 using Cars.Mappings;
-using Autofac;
 
 namespace Cars
 {
     public class Startup
     {
-        public Startup(IWebHostEnvironment env)
+        public Startup(IConfiguration configuration)
         {
-            var builder = new ConfigurationBuilder()
-                .SetBasePath(env.ContentRootPath)
-                .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
-                .AddJsonFile($"appsettings.{env.EnvironmentName}.json", optional: true)
-                .AddEnvironmentVariables();
-            Configuration = builder.Build();
+            Configuration = configuration;
         }
 
-        public IConfigurationRoot Configuration { get; private set; }
-
-        public ILifetimeScope AutofacContainer { get; private set; }
-
+        public IConfiguration Configuration { get; }
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
@@ -38,24 +35,21 @@ namespace Cars
                 options.UseSqlServer(
                     Configuration.GetConnectionString("DefaultConnection")));
 
+            //add references for Repository and Interfaces
+
+            services.AddScoped<IVehicleMakeRepository, VehicleMakeRepository>();
+            services.AddScoped<IVehicleModelRepository, VehicleModelRepository>();
+            services.AddScoped<IUnitOfWork, UnitOfWork>();
+
+
             services.AddAutoMapper(typeof(Maps));
 
-            services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
+            services.AddDefaultIdentity<IdentityUser>()
                 .AddRoles<IdentityRole>()
                 .AddEntityFrameworkStores<ApplicationDbContext>();
 
-            services.AddMvc();
             services.AddControllersWithViews();
             services.AddRazorPages();
-        }
-
-        public void ConfigureContainer(ContainerBuilder builder)
-        {
-
-            builder.RegisterType<VehicleMakeRepository>().As<IVehicleMakeRepository>();
-            builder.RegisterType<VehicleModelRepository>().As<IVehicleModelRepository>();
-            builder.RegisterType<UnitOfWork>().As<IUnitOfWork>();
-
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -77,11 +71,10 @@ namespace Cars
                 // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
-
-            app.UseRouting();
-
             app.UseHttpsRedirection();
             app.UseStaticFiles();
+
+            app.UseRouting();
 
             app.UseAuthentication();
             app.UseAuthorization();

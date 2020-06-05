@@ -1,5 +1,6 @@
 ﻿
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Project.Service.Data;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
@@ -15,7 +16,7 @@ namespace Cars.ViewModels
 
         [Display(Name = "Vehicle Make")]
         public int MakeId { get; set; }
-        public VehicleMakeVM VehicleMake;
+        public VehicleMakeVM VehicleMake { get; set; }
         
         
         public IEnumerable<SelectListItem> VehicleMakeList { get; set; }

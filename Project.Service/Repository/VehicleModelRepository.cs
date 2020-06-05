@@ -18,6 +18,7 @@ namespace Project.Service.Repository
         public async Task<IEnumerable<VehicleModel>> GetAllWithMake()
         {
             var models = await _context.Set<VehicleModel>()
+               .AsNoTracking()
                .Include(q => q.VehicleMake)               
                .ToListAsync(); ;
             return models;
@@ -26,6 +27,7 @@ namespace Project.Service.Repository
         public async Task<VehicleModel> GetByIdWithMake(int id)
         {
             var model = await _context.Set<VehicleModel>()
+                .AsNoTracking()
                 .Include(q => q.VehicleMake)
                 .FirstOrDefaultAsync(q => q.ModelId == id);
             return model;

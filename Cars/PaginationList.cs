@@ -9,7 +9,7 @@ namespace Cars
     public class PaginationList<T> : List<T>
     {
         public int PageIndex { get; private set; }
-        public int TotalPages { get; set; }
+        public int TotalPages { get; private set; }
 
         public PaginationList(List<T> items, int count, int pageIndex, int pageSize)
         {

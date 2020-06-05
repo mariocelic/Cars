@@ -229,8 +229,7 @@ namespace Project.Service.Migrations
             migrationBuilder.CreateIndex(
                 name: "IX_VehicleModels_MakeId",
                 table: "VehicleModels",
-                column: "MakeId",
-                unique: true);
+                column: "MakeId");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)

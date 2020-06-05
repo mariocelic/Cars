@@ -1,4 +1,5 @@
-﻿@model PaginationList<Cars.ViewModels.VehicleMakeVM>
+﻿
+@model PaginationList<Cars.ViewModels.VehicleMakeVM>
 @using Microsoft.AspNetCore.Identity
 @inject SignInManager<IdentityUser> SignInManager
 @inject UserManager<IdentityUser> UserManager
@@ -73,13 +74,17 @@
 }
 
 <a asp.action="Index"
+   asp-route-sortOrder="@ViewData["CurrentSort"]"
    asp-route-pageNumber="@(Model.PageIndex - 1)"
+   asp-route-currentFilter="@ViewData["CurrentFilter"]"
    class="btn btn-secondary @prevDisabled">
     Previous
 </a>
 
 <a asp.action="Index"
+   asp-route-sortOrder="@ViewData["CurrentSort"]"
    asp-route-pageNumber="@(Model.PageIndex + 1)"
+   asp-route-currentFilter="@ViewData["CurrentFilter"]"
    class="btn btn-secondary @nextDisabled">
     Next
 </a>

@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Project.Service.Data;
 using Project.Service.Interfaces;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -34,12 +35,25 @@ namespace Cars.Controllers
 
         {
             var models = await _unitOfWork.VehicleModel.GetAllWithMake();
-            var modelVMs = _mapper.Map<IEnumerable<VehicleModel>, IEnumerable<VehicleModelVM>>(models);
+            var modelVM = _mapper.Map<IEnumerable<VehicleModel>, IEnumerable<VehicleModelVM>>(models);
 
+            ViewData["CurrentSort"] = sortOrder;
             ViewData["NameSortParam"] = string.IsNullOrEmpty(sortOrder) ? "nameDesc" : "";
-            ViewData["Filter"] = searchString;
+            ViewData["Sort"] = sortOrder;
 
-            var param = from m in modelVMs
+            if (searchString != null)
+            {
+                pageNumber = 1;
+            }
+            else
+            {
+                searchString = currentFilter;
+            }
+
+            ViewData["CurrentFilter"] = searchString;
+
+
+            var param = from m in modelVM
                         select m;
 
             if (!string.IsNullOrEmpty(searchString))
@@ -51,7 +65,7 @@ namespace Cars.Controllers
             switch (sortOrder)
             {
                 case "nameDesc":
-                    param = param.OrderByDescending(m => m.VehicleMake.Name);
+                    param = param.OrderByDescending(m =>m.VehicleMake.Name);
                     break;
                 default:
                     param = param.OrderBy(m => m.VehicleMake.Name);
@@ -129,14 +143,15 @@ namespace Cars.Controllers
                 }
 
                 
-                var model = _mapper.Map<VehicleModel>(modelVM);
+                var model = _mapper.Map<VehicleModelVM>(modelVM);
                 
-                await _unitOfWork.VehicleModel.Create(model);
+                var carModel = _mapper.Map<VehicleModel>(model);
+                await _unitOfWork.VehicleModel.Create(carModel);
                 await _unitOfWork.Commit();
 
                 return RedirectToAction(nameof(Index));
             }
-            catch
+            catch(Exception)
             {
                 return View(modelVM);
             }
@@ -146,7 +161,7 @@ namespace Cars.Controllers
         [Authorize(Roles = "Administrator")]
         public async Task<IActionResult> Edit(int id)
         {
-            var model = await _unitOfWork.VehicleModel.GetByIdWithMake(id);
+            var model = await _unitOfWork.VehicleModel.GetById(id);
 
             if (model == null)
             {
@@ -171,8 +186,9 @@ namespace Cars.Controllers
                 VehicleMakeList = makeItems.ToList().OrderBy(m => m.Text)
             };
 
-           
+
             var modelVM = _mapper.Map<VehicleModelVM>(newModel);
+
             return View(modelVM);
 
 
@@ -202,9 +218,11 @@ namespace Cars.Controllers
                 {
                     return View(modelVM);
                 }
-
-               
+                
+                
                 var model = _mapper.Map<VehicleModel>(modelVM);
+                
+
                 _unitOfWork.VehicleModel.Update(model);
                 await _unitOfWork.Commit();
 
@@ -242,7 +260,7 @@ namespace Cars.Controllers
             try
             {
                 
-                var model = await _unitOfWork.VehicleModel.GetByIdWithMake(id);
+                var model = await _unitOfWork.VehicleModel.GetById(id);
                 await _unitOfWork.VehicleModel.Delete(id);
                 await _unitOfWork.Commit();
                 return RedirectToAction(nameof(Index));

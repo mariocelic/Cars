@@ -1,7 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Text;
 
 namespace Project.Service.Data
 {
@@ -14,8 +12,6 @@ namespace Project.Service.Data
         public string Name { get; set; }
         public string Abrv { get; set; }
 
-        public VehicleModel VehicleModel { get; set; }
-
-
+        public ICollection<VehicleModel> VehicleModels { get; set; }
     }
 }

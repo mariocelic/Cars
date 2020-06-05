@@ -31,10 +31,10 @@
                 <a asp-action="Index" asp-route-sortOrder="@ViewData["NameSortParam"]">VehicleMake</a>
             </th>
             <th>
-                 Name
+                Name
             </th>
             <th>
-                 Abrv
+                Abrv
             </th>
 
             <th></th>
@@ -77,14 +77,17 @@
 }
 
 <a asp.action="Index"
+   asp-route-sortOrder="@ViewData["CurrentSort"]"
    asp-route-pageNumber="@(Model.PageIndex - 1)"
+   asp-route-currentFilter="@ViewData["CurrentFilter"]"
    class="btn btn-secondary @prevDisabled">
     Previous
 </a>
 
 <a asp.action="Index"
+   asp-route-sortOrder="@ViewData["CurrentSort"]"
    asp-route-pageNumber="@(Model.PageIndex + 1)"
+   asp-route-currentFilter="@ViewData["CurrentFilter"]"
    class="btn btn-secondary @nextDisabled">
     Next
 </a>
-
