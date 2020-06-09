@@ -28,7 +28,7 @@ namespace Cars
 
         public IConfigurationRoot Configuration { get; private set; }
 
-        //public ILifetimeScope AutofacContainer { get; private set; }
+        public ILifetimeScope AutofacContainer { get; private set; }
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
@@ -41,7 +41,7 @@ namespace Cars
 
             services.AddAutoMapper(typeof(Maps));
 
-            services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
+            services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = false)
                 .AddRoles<IdentityRole>()
                 .AddEntityFrameworkStores<ApplicationDbContext>();
 
