@@ -27,54 +27,13 @@ namespace Cars.Controllers
 
         // GET: VehicleModels
         [Authorize(Roles = "Administrator, Employee")]
-        public async Task<IActionResult> Index(
-            string sortOrder,
-            string currentFilter,
-            string searchString,
-            int? pageNumber)
+        public async Task<IActionResult> Index()
 
         {
             var models = await _unitOfWork.VehicleModel.GetAllWithMake();
             var modelVM = _mapper.Map<IEnumerable<VehicleModel>, IEnumerable<VehicleModelVM>>(models);
-
-            ViewData["CurrentSort"] = sortOrder;
-            ViewData["NameSortParam"] = string.IsNullOrEmpty(sortOrder) ? "nameDesc" : "";
-            ViewData["Sort"] = sortOrder;
-
-            if (searchString != null)
-            {
-                pageNumber = 1;
-            }
-            else
-            {
-                searchString = currentFilter;
-            }
-
-            ViewData["CurrentFilter"] = searchString;
-
-
-            var param = from m in modelVM
-                        select m;
-
-            if (!string.IsNullOrEmpty(searchString))
-            {
-                param = param.Where(p => p.Name.Contains(searchString));
-            }
-
-
-            switch (sortOrder)
-            {
-                case "nameDesc":
-                    param = param.OrderByDescending(m =>m.VehicleMake.Name);
-                    break;
-                default:
-                    param = param.OrderBy(m => m.VehicleMake.Name);
-                    break;
-            }
-
-
-            int pageSize = 5;
-            return View(PaginationList<VehicleModelVM>.Create(param.AsQueryable(), pageNumber ?? 1, pageSize));
+           
+            return View(modelVM);
 
 
         }
@@ -99,7 +58,7 @@ namespace Cars.Controllers
         [Authorize(Roles = "Administrator")]
         public async Task<IActionResult> Create()
         {
-            var makes = await _unitOfWork.VehicleMake.GetAll();
+            var makes = await _unitOfWork.VehicleMake.FindAll();
             var makeItems = makes.Select(q => new SelectListItem
             {
                 Text = q.Name,
@@ -125,7 +84,7 @@ namespace Cars.Controllers
         {
             try
             {
-                var makes = await _unitOfWork.VehicleMake.GetAll();
+                var makes = await _unitOfWork.VehicleMake.FindAll();
 
                 var makeItems = makes.Select(q => new SelectListItem
                 {
@@ -147,7 +106,7 @@ namespace Cars.Controllers
                 
                 var carModel = _mapper.Map<VehicleModel>(model);
                 await _unitOfWork.VehicleModel.Create(carModel);
-                await _unitOfWork.Commit();
+                await _unitOfWork.CommitAsync();
 
                 return RedirectToAction(nameof(Index));
             }
@@ -168,7 +127,7 @@ namespace Cars.Controllers
                 return NotFound();
             }
 
-            var makes = await _unitOfWork.VehicleMake.GetAll();
+            var makes = await _unitOfWork.VehicleMake.FindAll();
             var makeItems = makes.Select(q => new SelectListItem
             {
                 Text = q.Name,
@@ -202,7 +161,7 @@ namespace Cars.Controllers
         {
             try
             {
-                var makes = await _unitOfWork.VehicleMake.GetAll();
+                var makes = await _unitOfWork.VehicleMake.FindAll();
 
                 var makeItems = makes.Select(q => new SelectListItem
                 {
@@ -224,7 +183,7 @@ namespace Cars.Controllers
                 
 
                 _unitOfWork.VehicleModel.Update(model);
-                await _unitOfWork.Commit();
+                await _unitOfWork.CommitAsync();
 
                 return RedirectToAction(nameof(Index));
             }
@@ -262,7 +221,7 @@ namespace Cars.Controllers
                 
                 var model = await _unitOfWork.VehicleModel.GetById(id);
                 await _unitOfWork.VehicleModel.Delete(id);
-                await _unitOfWork.Commit();
+                await _unitOfWork.CommitAsync();
                 return RedirectToAction(nameof(Index));
             }
             catch

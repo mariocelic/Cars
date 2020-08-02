@@ -1,5 +1,5 @@
-﻿
-@model PaginationList<Cars.ViewModels.VehicleMakeVM>
+﻿@using Project.Service.Helpers
+@model IEnumerable<Cars.ViewModels.VehicleMakeVM>
 @using Microsoft.AspNetCore.Identity
 @inject SignInManager<IdentityUser> SignInManager
 @inject UserManager<IdentityUser> UserManager
@@ -68,7 +68,7 @@
     </tbody>
 </table>
 
-@{
+@*@{
     var prevDisabled = !Model.PreviousPage ? "disabled" : "";
     var nextDisabled = !Model.NextPage ? "disabled" : "";
 }
@@ -87,4 +87,4 @@
    asp-route-currentFilter="@ViewData["CurrentFilter"]"
    class="btn btn-secondary @nextDisabled">
     Next
-</a>
+</a>*@

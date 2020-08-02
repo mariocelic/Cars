@@ -10,7 +10,7 @@ namespace Project.Service.Interfaces
         IVehicleMakeRepository VehicleMake { get; }
         IVehicleModelRepository VehicleModel { get; }
 
-        Task Commit();
+        Task CommitAsync();
     }
 }
-    
+

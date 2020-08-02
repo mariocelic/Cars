@@ -9,7 +9,8 @@ namespace Cars.Mappings
         public Maps()
         {
             CreateMap<VehicleMake, VehicleMakeVM>().ReverseMap();
-            CreateMap<VehicleModel, VehicleModelVM>().ReverseMap();
+            CreateMap<VehicleModel, VehicleModelVM>().ReverseMap();           
+
         }
 
     }

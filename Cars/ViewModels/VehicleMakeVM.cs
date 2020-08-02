@@ -8,6 +8,7 @@ namespace Cars.ViewModels
 {
     public class VehicleMakeVM
     {
+        
         public int MakeId { get; set; }
         [Required]
         public string Name { get; set; }        

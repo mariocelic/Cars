@@ -1,11 +1,10 @@
-﻿@model PaginationList<Cars.ViewModels.VehicleModelVM>
+﻿@using Project.Service.Helpers
+@model IEnumerable<Cars.ViewModels.VehicleModelVM>
 @using Microsoft.AspNetCore.Identity
 @inject SignInManager<IdentityUser> SignInManager
 @inject UserManager<IdentityUser> UserManager
 
-@{
-    ViewData["Title"] = "Index";
-}
+@{ ViewData["Title"] = "Index"; }
 
 <h1>Index</h1>
 
@@ -43,51 +42,49 @@
     <tbody>
         @foreach (var item in Model)
         {
-            <tr>
-                <td>
-                    @Html.DisplayFor(modelItem => item.VehicleMake.Name)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Name)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Abrv)
-                </td>
+<tr>
+    <td>
+        @Html.DisplayFor(modelItem => item.VehicleMake.Name)
+    </td>
+    <td>
+        @Html.DisplayFor(modelItem => item.Name)
+    </td>
+    <td>
+        @Html.DisplayFor(modelItem => item.Abrv)
+    </td>
 
 
-                @if (SignInManager.IsSignedIn(User))
-                {
-                    if (User.IsInRole("Administrator"))
-                    {
-                        <td>
-                            <a asp-action="Edit" asp-route-id="@item.ModelId">Edit</a> |
-                            <a asp-action="Details" asp-route-id="@item.ModelId">Details</a> |
-                            <a asp-action="Delete" asp-route-id="@item.ModelId">Delete</a>
-                        </td>
-                    }
+    @if (SignInManager.IsSignedIn(User))
+    {
+        if (User.IsInRole("Administrator"))
+        {
+<td>
+    <a asp-action="Edit" asp-route-id="@item.ModelId">Edit</a> |
+    <a asp-action="Details" asp-route-id="@item.ModelId">Details</a> |
+    <a asp-action="Delete" asp-route-id="@item.ModelId">Delete</a>
+</td>                    }
                 }
-            </tr>
-        }
+</tr>}
     </tbody>
 </table>
 
-@{
-    var prevDisabled = !Model.PreviousPage ? "disabled" : "";
-    var nextDisabled = !Model.NextPage ? "disabled" : "";
-}
+@*@{
+        var prevDisabled = !Model.PreviousPage ? "disabled" : "";
+        var nextDisabled = !Model.NextPage ? "disabled" : "";
+    }
 
-<a asp.action="Index"
-   asp-route-sortOrder="@ViewData["CurrentSort"]"
-   asp-route-pageNumber="@(Model.PageIndex - 1)"
-   asp-route-currentFilter="@ViewData["CurrentFilter"]"
-   class="btn btn-secondary @prevDisabled">
-    Previous
-</a>
+    <a asp.action="Index"
+       asp-route-sortOrder="@ViewData["CurrentSort"]"
+       asp-route-pageNumber="@(Model.PageIndex - 1)"
+       asp-route-currentFilter="@ViewData["CurrentFilter"]"
+       class="btn btn-secondary @prevDisabled">
+        Previous
+    </a>
 
-<a asp.action="Index"
-   asp-route-sortOrder="@ViewData["CurrentSort"]"
-   asp-route-pageNumber="@(Model.PageIndex + 1)"
-   asp-route-currentFilter="@ViewData["CurrentFilter"]"
-   class="btn btn-secondary @nextDisabled">
-    Next
-</a>
+    <a asp.action="Index"
+       asp-route-sortOrder="@ViewData["CurrentSort"]"
+       asp-route-pageNumber="@(Model.PageIndex + 1)"
+       asp-route-currentFilter="@ViewData["CurrentFilter"]"
+       class="btn btn-secondary @nextDisabled">
+        Next
+    </a>*@

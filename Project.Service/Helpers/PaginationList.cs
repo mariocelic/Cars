@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Cars
+namespace Project.Service.Helpers
 {
     public class PaginationList<T> : List<T>
     {
@@ -13,11 +13,10 @@ namespace Cars
 
         public PaginationList(List<T> items, int count, int pageIndex, int pageSize)
         {
-
             PageIndex = pageIndex;
             TotalPages = (int)Math.Ceiling(count / (double)pageSize);
 
-            AddRange(items);
+            this.AddRange(items);
         }
 
         public bool PreviousPage
@@ -36,13 +35,12 @@ namespace Cars
             }
         }
 
-        public static PaginationList<T> Create(IQueryable<T> source, int pageIndex, int pageSize)
+        public static async Task<PaginationList<T>> CreateAsync(IQueryable<T> source, int pageIndex, int pageSize)
         {
-            var count = source.Count();
-            var items = source.Skip((pageIndex - 1) * pageSize).Take(pageSize).ToList();
+            var count = await source.CountAsync();
+            var items = await source.Skip((pageIndex - 1) * pageSize).Take(pageSize).ToListAsync();
             return new PaginationList<T>(items, count, pageIndex, pageSize);
         }
-
     }
 
 }

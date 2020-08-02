@@ -5,7 +5,6 @@ using Project.Service.Data;
 using Project.Service.Interfaces;
 using Cars.ViewModels;
 using System.Threading.Tasks;
-using System.Linq;
 using Microsoft.AspNetCore.Authorization;
 
 namespace Cars.Controllers
@@ -15,65 +14,26 @@ namespace Cars.Controllers
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
-        
-        
+        private readonly IVehicleMakeService _makeService;
 
-        public VehicleMakesController(IUnitOfWork unitOfWork, IMapper mapper)
+
+
+        public VehicleMakesController(IUnitOfWork unitOfWork, IMapper mapper, IVehicleMakeService makeService)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
-            
+            _makeService = makeService;
+
         }
 
         // GET: VehicleMakes
         [Authorize(Roles = "Administrator, Employee")]
-        public async Task<IActionResult> Index(
-            string sortOrder, 
-            string currentFilter,
-            string searchString,
-            int? pageNumber)
+        public async Task<IActionResult> Index()
+        {            
+            var makes = _mapper.Map<IEnumerable<VehicleMakeVM>>(await _makeService.FindAllMakesPagedAsync());
+            if (makes == null) return BadRequest();
 
-        {
-            var makes = await _unitOfWork.VehicleMake.GetAll();
-            var makeVMs = _mapper.Map <IEnumerable<VehicleMake>, IEnumerable<VehicleMakeVM>>(makes);
-
-            ViewData["CurrentSort"] = sortOrder;
-            ViewData["NameSortParam"] = string.IsNullOrEmpty(sortOrder) ? "nameDesc" : "";
-            ViewData["Sort"] = sortOrder;
-
-            if (searchString != null)
-            {
-                pageNumber = 1;
-            }
-            else
-            {
-                searchString = currentFilter;
-            }
-
-            ViewData["CurrentFilter"] = searchString;
-
-            var param = from m in makeVMs
-                        select m;
-
-            if (!string.IsNullOrEmpty(searchString))
-            {
-                param = param.Where(p => p.Name.Contains(searchString));
-            }
-
-
-            switch (sortOrder)
-            {
-                case "nameDesc":
-                    param = param.OrderByDescending(m => m.Name);
-                    break;
-                default:
-                    param = param.OrderBy(m => m.Name);
-                    break;
-            }
-
-
-            int pageSize = 5;
-            return View(PaginationList<VehicleMakeVM>.Create(param.AsQueryable(), pageNumber ?? 1, pageSize));
+            return View(makes);
 
         }
 
@@ -116,10 +76,10 @@ namespace Cars.Controllers
 
                 var make = _mapper.Map<VehicleMake>(makeVM);
                 await _unitOfWork.VehicleMake.Create(make);
-                await _unitOfWork.Commit();
-                                
-                
-                return RedirectToAction(nameof(Index));                                     
+                await _unitOfWork.CommitAsync();
+
+
+                return RedirectToAction(nameof(Index));
 
             }
             catch
@@ -139,7 +99,7 @@ namespace Cars.Controllers
                 return NotFound();
             }
 
-            
+
             var makeVM = _mapper.Map<VehicleMakeVM>(make);
             return View(makeVM);
         }
@@ -161,7 +121,7 @@ namespace Cars.Controllers
 
                 var makeItem = _mapper.Map<VehicleMake>(makeVM);
                 _unitOfWork.VehicleMake.Update(makeItem);
-                await _unitOfWork.Commit();
+                await _unitOfWork.CommitAsync();
 
 
                 return RedirectToAction(nameof(Index));
@@ -196,10 +156,10 @@ namespace Cars.Controllers
         {
             try
             {
-                
+
                 var make = await _unitOfWork.VehicleMake.GetById(id);
                 await _unitOfWork.VehicleMake.Delete(id);
-                await _unitOfWork.Commit();
+                await _unitOfWork.CommitAsync();
 
                 return RedirectToAction(nameof(Index));
             }

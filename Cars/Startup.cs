@@ -11,12 +11,14 @@ using Project.Service.Repository;
 using AutoMapper;
 using Cars.Mappings;
 using Autofac;
+using Autofac.Extensions.DependencyInjection;
+using Project.Service;
 
 namespace Cars
 {
     public class Startup
     {
-        public Startup(IWebHostEnvironment env)
+        public Startup(IHostEnvironment env)
         {
             var builder = new ConfigurationBuilder()
                 .SetBasePath(env.ContentRootPath)
@@ -29,6 +31,7 @@ namespace Cars
         public IConfigurationRoot Configuration { get; private set; }
 
         public ILifetimeScope AutofacContainer { get; private set; }
+
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
@@ -48,15 +51,13 @@ namespace Cars
             services.AddMvc();
             services.AddControllersWithViews();
             services.AddRazorPages();
+
         }
 
         public void ConfigureContainer(ContainerBuilder builder)
         {
 
-            builder.RegisterType<VehicleMakeRepository>().As<IVehicleMakeRepository>();
-            builder.RegisterType<VehicleModelRepository>().As<IVehicleModelRepository>();
-            builder.RegisterType<UnitOfWork>().As<IUnitOfWork>();
-
+            builder.RegisterModule(new AutofacConfig());
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -67,7 +68,7 @@ namespace Cars
             RoleManager<IdentityRole> roleManager
             )
         {
-            
+
             app.UseRouting();
 
             app.UseHttpsRedirection();

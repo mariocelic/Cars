@@ -1,6 +1,5 @@
 ﻿using Project.Service.Data;
 using Project.Service.Interfaces;
-using Project.Service.Repository;
 using System.Threading.Tasks;
 
 namespace Project.Service.Repository
@@ -8,20 +7,21 @@ namespace Project.Service.Repository
     public class UnitOfWork : IUnitOfWork
     {
 
+        public IVehicleMakeRepository VehicleMake { get; set; }
+        public IVehicleModelRepository VehicleModel { get; set; }
+
         private readonly ApplicationDbContext _context;
 
-        public UnitOfWork (ApplicationDbContext context)
+        public UnitOfWork(IVehicleMakeRepository vehicleMake, IVehicleModelRepository vehicleModel, ApplicationDbContext context)
         {
+            VehicleMake = vehicleMake;
+            VehicleModel = vehicleModel;
             _context = context;
-            VehicleMake = new VehicleMakeRepository(context);
-            VehicleModel = new VehicleModelRepository(context);
-
         }
 
-        public IVehicleMakeRepository VehicleMake { get; private set; }
-        public IVehicleModelRepository VehicleModel { get; private set; }
 
-        public async Task Commit()
+
+        public async Task CommitAsync()
         {
             await _context.SaveChangesAsync();
         }
@@ -30,6 +30,6 @@ namespace Project.Service.Repository
             _context.DisposeAsync();
         }
 
-        
+
     }
 }
