@@ -29,32 +29,58 @@ namespace Project.Service.Services
             await _unitOfWork.CommitAsync();
 
             return vehicleMake;
+
         }
 
         public async Task<VehicleMake> DeleteAsync(int id)
         {
             var make = await _unitOfWork.VehicleMake.GetById(id);
-           
+
             await _unitOfWork.VehicleMake.Delete(id);
             await _unitOfWork.CommitAsync();
             return make;
         }
 
-        public async Task<IEnumerable<VehicleMake>> FindAllMakesPagedAsync()
+        public async Task<IList<VehicleMake>> FindAllMakesPaged(ISortingParameters sortingParams, IFilteringParameters filteringParams, IPagingParameters pagingParams)
         {
-            return await _unitOfWork.VehicleMake.FindAllMakes();
+
+            return await _unitOfWork.VehicleMake.FindAllMakesPaged(sortingParams, filteringParams, pagingParams);
         }
 
-
-        public Task<VehicleMake> FindVehicleMakeById(int id)
+        public async Task<VehicleMake> FindVehicleMakeById(int id)
         {
-            throw new System.NotImplementedException();
+            return await _unitOfWork.VehicleMake.GetById(id);
         }
 
-        public Task<VehicleMake> UpdateAsync(int id, VehicleMake vehicleMake)
+        public async Task<VehicleMake> UpdateAsync(int id, VehicleMake vehicleMake)
         {
-            throw new System.NotImplementedException();
+            var vehicleMakeToUpdate = await _unitOfWork.VehicleMake.GetById(id);
+
+            if (string.IsNullOrEmpty(vehicleMake.Name))
+            {
+                vehicleMakeToUpdate.Name = vehicleMakeToUpdate.Name;
+            }
+            else
+            {
+                vehicleMakeToUpdate.Name = vehicleMake.Name;
+            }
+
+
+            if (string.IsNullOrEmpty(vehicleMake.Abrv))
+            {
+                vehicleMakeToUpdate.Abrv = vehicleMakeToUpdate.Abrv;
+            }
+            else
+            {
+                vehicleMakeToUpdate.Abrv = vehicleMake.Abrv;
+            }
+
+            _unitOfWork.VehicleMake.Update(vehicleMakeToUpdate);
+            await _unitOfWork.CommitAsync();
+
+
+            return vehicleMakeToUpdate;
+
         }
     }
 }
-

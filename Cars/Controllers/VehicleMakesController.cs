@@ -6,6 +6,7 @@ using Project.Service.Interfaces;
 using Cars.ViewModels;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
+using Project.Service.Helpers;
 
 namespace Cars.Controllers
 {
@@ -28,13 +29,18 @@ namespace Cars.Controllers
 
         // GET: VehicleMakes
         [Authorize(Roles = "Administrator, Employee")]
-        public async Task<IActionResult> Index()
-        {            
-            var makes = _mapper.Map<IEnumerable<VehicleMakeVM>>(await _makeService.FindAllMakesPagedAsync());
-            if (makes == null) return BadRequest();
+        [HttpGet(Name ="GetPaginationMakes")]
+        [HttpHead]
+        public async Task<IActionResult> Index([FromQuery] QueryParameters queryParameters)
+        {
+            var SortingParams = new SortingParameters() { SortOrder = queryParameters.SortOrder };
+            var PagingParams = new PagingParameters() { PageNumber = queryParameters.PageNumber, PageSize = queryParameters.PageSize};
+            var FilteringParams = new FilteringParameters() { CurrentFilter = queryParameters.CurrentFilter, FilterString = queryParameters.FilterString };
 
-            return View(makes);
+            List<VehicleMake> listOfVehicleMakes = _mapper.Map<List<VehicleMake>>(await _makeService.FindAllMakesPaged(SortingParams, FilteringParams, PagingParams));
+            if (listOfVehicleMakes == null) return BadRequest();
 
+            return View(listOfVehicleMakes);
         }
 
         // GET: VehicleMakes/Details/5
