@@ -1,10 +1,11 @@
-﻿@using Project.Service.Helpers
-@model IEnumerable<Cars.ViewModels.VehicleModelVM>
+﻿@model IList<Project.Service.Data.VehicleModel>
 @using Microsoft.AspNetCore.Identity
 @inject SignInManager<IdentityUser> SignInManager
 @inject UserManager<IdentityUser> UserManager
 
-@{ ViewData["Title"] = "Index"; }
+@{ 
+    ViewData["Title"] = "Index"; 
+}
 
 <h1>Index</h1>
 
@@ -15,19 +16,19 @@
 <form asp-action="Index" method="get">
     <div class="form-action no-color">
         <p>
-            Search by model: <input type="text" name="searchString" value="@ViewData["Filter"]" />
+            Search by name: <input type="text" name="filterString" value="@ViewData["CurrentFilter"]" />
             <input type="submit" value="Search" class="btn btn-secondary" />
             <a asp-action="Index">Return to list</a>
-
         </p>
     </div>
 </form>
+
 
 <table id="tabelIndex" class="table">
     <thead>
         <tr>
             <th>
-                <a asp-action="Index" asp-route-sortOrder="@ViewData["NameSortParam"]">VehicleMake</a>
+                <a asp-action="Index" asp-route-sortOrder="@ViewData["SortOrder"]">Vehicle Make</a>
             </th>
             <th>
                 Name
@@ -35,56 +36,83 @@
             <th>
                 Abrv
             </th>
-
             <th></th>
         </tr>
     </thead>
     <tbody>
         @foreach (var item in Model)
         {
-<tr>
-    <td>
-        @Html.DisplayFor(modelItem => item.VehicleMake.Name)
-    </td>
-    <td>
-        @Html.DisplayFor(modelItem => item.Name)
-    </td>
-    <td>
-        @Html.DisplayFor(modelItem => item.Abrv)
-    </td>
 
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.VehicleMake.Name)
+                </td>
+                <td>
+                     @Html.DisplayFor(modelItem => item.Name)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Abrv)
+                </td>
 
-    @if (SignInManager.IsSignedIn(User))
-    {
-        if (User.IsInRole("Administrator"))
-        {
-<td>
-    <a asp-action="Edit" asp-route-id="@item.ModelId">Edit</a> |
-    <a asp-action="Details" asp-route-id="@item.ModelId">Details</a> |
-    <a asp-action="Delete" asp-route-id="@item.ModelId">Delete</a>
-</td>                    }
+                @if (SignInManager.IsSignedIn(User))
+                {
+                    if (User.IsInRole("Administrator"))
+                    {
+                        <td>
+                            <a asp-action="Edit" asp-route-id="@item.ModelId">Edit</a> |
+                            <a asp-action="Details" asp-route-id="@item.ModelId">Details</a> |
+                            <a asp-action="Delete" asp-route-id="@item.ModelId">Delete</a>
+                        </td>    
+                    }
                 }
-</tr>}
+
+            </tr>
+         }
     </tbody>
 </table>
 
-@*@{
-        var prevDisabled = !Model.PreviousPage ? "disabled" : "";
-        var nextDisabled = !Model.NextPage ? "disabled" : "";
+
+
+@{ int currentPageNumber;
+    int pageSize;
+
+    try
+    {
+        pageSize = int.Parse(Context.Request.Query["pageSize"]);
+    }
+    catch (Exception)
+    {
+        pageSize = 5;
     }
 
-    <a asp.action="Index"
-       asp-route-sortOrder="@ViewData["CurrentSort"]"
-       asp-route-pageNumber="@(Model.PageIndex - 1)"
-       asp-route-currentFilter="@ViewData["CurrentFilter"]"
-       class="btn btn-secondary @prevDisabled">
-        Previous
-    </a>
+<p></p> try
+{
+    currentPageNumber = int.Parse(Context.Request.Query["pageNumber"]);
+}
+catch (Exception)
+{
+    currentPageNumber = 1;
+}
 
-    <a asp.action="Index"
-       asp-route-sortOrder="@ViewData["CurrentSort"]"
-       asp-route-pageNumber="@(Model.PageIndex + 1)"
-       asp-route-currentFilter="@ViewData["CurrentFilter"]"
-       class="btn btn-secondary @nextDisabled">
-        Next
-    </a>*@
+var nextPage = currentPageNumber + 1;
+var previousPage = currentPageNumber - 1;
+
+
+if (currentPageNumber != 1)
+{
+@Html.ActionLink("Previous ", "Index", new { pageNumber = previousPage, pageSize = pageSize });
+}
+
+if (Model.Count() != 0)
+{
+
+@Html.ActionLink(" Next", "Index", new { pageNumber = nextPage, pageSize = 5 });
+
+
+}
+else
+{
+<p>No more results!</p> } 
+}
+
+

@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Project.Service.Data;
+using Project.Service.Helpers;
 using Project.Service.Interfaces;
 using System;
 using System.Collections.Generic;
@@ -15,25 +16,34 @@ namespace Cars.Controllers
     [Authorize]
     public class VehicleModelsController : Controller
     {
-        private readonly IMapper _mapper;
         private readonly IUnitOfWork _unitOfWork;
+        private readonly IMapper _mapper;
+        private readonly IVehicleModelService _vehicleModelService;
+        private readonly IVehicleMakeService _vehicleMakeService;
 
 
-        public VehicleModelsController(IUnitOfWork unitOfWork, IMapper mapper)
+        public VehicleModelsController(IUnitOfWork unitOfWork, IMapper mapper, IVehicleModelService vehicleModelService, IVehicleMakeService vehicleMakeService)
         {
-            _unitOfWork = unitOfWork;           
-            _mapper = mapper;            
+            _unitOfWork = unitOfWork;
+            _mapper = mapper;
+            _vehicleModelService = vehicleModelService;
+            _vehicleMakeService = vehicleMakeService;
         }
 
         // GET: VehicleModels
         [Authorize(Roles = "Administrator, Employee")]
-        public async Task<IActionResult> Index()
 
+        public async Task<IActionResult> Index(SortingParameters sortingParameters, FilteringParameters filteringParameters, PagingParameters pagingParameters)
         {
-            var models = await _unitOfWork.VehicleModel.GetAllWithMake();
-            var modelVM = _mapper.Map<IEnumerable<VehicleModel>, IEnumerable<VehicleModelVM>>(models);
-           
-            return View(modelVM);
+            var SortingParams = new SortingParameters() { SortOrder = sortingParameters.SortOrder };            
+            var FilteringParams = new FilteringParameters() { CurrentFilter = filteringParameters.CurrentFilter, FilterString = filteringParameters.FilterString };
+            var PagingParams = new PagingParameters() { PageNumber = pagingParameters.PageNumber, PageSize = pagingParameters.PageSize ?? 5 };
+                       
+            
+            List<VehicleModel> listOfVehicleModels = _mapper.Map<List<VehicleModel>>(await _vehicleModelService.FindAllModelsPaged(SortingParams, FilteringParams, PagingParams));
+            if (listOfVehicleModels == null) return BadRequest();
+
+            return View(listOfVehicleModels);
 
 
         }
@@ -42,7 +52,7 @@ namespace Cars.Controllers
         [Authorize(Roles = "Administrator")]
         public async Task<IActionResult> Details(int id)
         {
-            var model = await _unitOfWork.VehicleModel.GetByIdWithMake(id);
+            var model = await _vehicleModelService.FindVehicleModelById(id);
 
             if (model == null)
             {
@@ -56,9 +66,9 @@ namespace Cars.Controllers
 
         // GET: VehicleModels/Create
         [Authorize(Roles = "Administrator")]
-        public async Task<IActionResult> Create()
+        public IActionResult Create()
         {
-            var makes = await _unitOfWork.VehicleMake.FindAll();
+            var makes = _unitOfWork.VehicleMake.FindAllAsync();
             var makeItems = makes.Select(q => new SelectListItem
             {
                 Text = q.Name,
@@ -84,7 +94,7 @@ namespace Cars.Controllers
         {
             try
             {
-                var makes = await _unitOfWork.VehicleMake.FindAll();
+                var makes = _unitOfWork.VehicleMake.FindAllAsync();
 
                 var makeItems = makes.Select(q => new SelectListItem
                 {
@@ -105,9 +115,8 @@ namespace Cars.Controllers
                 var model = _mapper.Map<VehicleModelVM>(modelVM);
                 
                 var carModel = _mapper.Map<VehicleModel>(model);
-                await _unitOfWork.VehicleModel.Create(carModel);
-                await _unitOfWork.CommitAsync();
-
+                await _vehicleModelService.CreateAsync(carModel);
+                
                 return RedirectToAction(nameof(Index));
             }
             catch(Exception)
@@ -120,14 +129,14 @@ namespace Cars.Controllers
         [Authorize(Roles = "Administrator")]
         public async Task<IActionResult> Edit(int id)
         {
-            var model = await _unitOfWork.VehicleModel.GetById(id);
+            var model = await _vehicleModelService.FindVehicleModelById(id);
 
             if (model == null)
             {
                 return NotFound();
             }
 
-            var makes = await _unitOfWork.VehicleMake.FindAll();
+            var makes = _unitOfWork.VehicleMake.FindAllAsync();
             var makeItems = makes.Select(q => new SelectListItem
             {
                 Text = q.Name,
@@ -161,7 +170,7 @@ namespace Cars.Controllers
         {
             try
             {
-                var makes = await _unitOfWork.VehicleMake.FindAll();
+                var makes = _unitOfWork.VehicleMake.FindAllAsync();
 
                 var makeItems = makes.Select(q => new SelectListItem
                 {
@@ -198,7 +207,7 @@ namespace Cars.Controllers
         [Authorize(Roles = "Administrator")]
         public async Task<IActionResult> Delete(int id)
         {
-            var model = await _unitOfWork.VehicleModel.GetByIdWithMake(id);
+            var model = await _vehicleModelService.FindVehicleModelById(id);
 
             if (model == null)
             {
@@ -219,9 +228,9 @@ namespace Cars.Controllers
             try
             {
                 
-                var model = await _unitOfWork.VehicleModel.GetById(id);
-                await _unitOfWork.VehicleModel.Delete(id);
-                await _unitOfWork.CommitAsync();
+                var model = await _vehicleModelService.FindVehicleModelById(id);
+                await _vehicleModelService.DeleteAsync(id);
+                
                 return RedirectToAction(nameof(Index));
             }
             catch

@@ -1,12 +1,11 @@
 ﻿using Project.Service.Data;
-using System.Collections.Generic;
-using System.Threading.Tasks;
+using System.Linq;
 
 namespace Project.Service.Interfaces
 {
     public interface IVehicleMakeRepository : IAsyncRepositoryBase<VehicleMake>
     {
-        Task<IEnumerable<VehicleMake>> FindAllMakes();       
+        IQueryable<VehicleMake> FindAllAsync();        
 
     }
 }

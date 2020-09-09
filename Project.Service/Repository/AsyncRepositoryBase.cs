@@ -1,9 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Project.Service.Data;
-using Project.Service.Helpers;
 using Project.Service.Interfaces;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace Project.Service.Repository
@@ -22,12 +20,12 @@ namespace Project.Service.Repository
 
         public async Task<IEnumerable<T>> FindAll()
         {
-            return await _context.Set<T>().ToListAsync();     
+            return await _context.Set<T>().AsNoTracking().ToListAsync();     
         }
 
         
 
-        public async Task<T> GetById(int id)
+        public async Task<T> FindById(int id)
         {
             return await _context.Set<T>().FindAsync(id);
         }
@@ -50,6 +48,6 @@ namespace Project.Service.Repository
 
 
 
-        }
+        }       
     }
 }

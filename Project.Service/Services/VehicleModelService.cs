@@ -1,38 +1,131 @@
-﻿using Project.Service.Data;
+﻿using AutoMapper;
+using Project.Service.Data;
 using Project.Service.Helpers;
 using Project.Service.Interfaces;
 using System;
 using System.Collections.Generic;
-using System.Text;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace Project.Service.Services
 {
     public class VehicleModelService : IVehicleModelService
     {
-        public Task<VehicleModel> CreateAsync(VehicleModel vehicleModel)
+        private readonly IUnitOfWork _unitOfWork;
+        private readonly IMapper _mapper;
+        private readonly ApplicationDbContext _context;
+        
+
+        public VehicleModelService(IUnitOfWork unitOfWork,IMapper mapper, ApplicationDbContext context)
         {
-            throw new NotImplementedException();
+            _unitOfWork = unitOfWork;
+            _mapper = mapper;
+            _context = context;
         }
 
-        public Task<VehicleModel> DeleteAsync(int id)
+        public async Task<VehicleModel> CreateAsync(VehicleModel vehicleModel)
         {
-            throw new NotImplementedException();
+            await _unitOfWork.VehicleModel.Create(vehicleModel);
+            await _unitOfWork.CommitAsync();
+
+            return vehicleModel;
+
         }
 
-        public Task<IEnumerable<VehicleModel>> FindAllModelsPagedAsync()
+        public async Task<VehicleModel> DeleteAsync(int id)
         {
-            throw new NotImplementedException();
+            var model = await _unitOfWork.VehicleModel.FindById(id);
+
+            await _unitOfWork.VehicleModel.Delete(id);
+            await _unitOfWork.CommitAsync();
+            return model;
         }
 
-        public Task<VehicleModel> FindVehicleMakeById(int id)
+        public async Task<IList<VehicleModel>> FindAllModelsPaged(ISortingParameters sortingParams, IFilteringParameters filteringParams, IPagingParameters pagingParams)
         {
-            throw new NotImplementedException();
+
+            IQueryable<VehicleModel> vehicleModels;
+
+            // Filtering
+            using (_context)
+            {
+                try
+                {
+
+                    if (filteringParams.FilterString != null)
+                    {
+                        pagingParams.PageNumber = 1;
+                    }
+                    else
+                    {
+                        filteringParams.FilterString = filteringParams.CurrentFilter;
+                    }
+
+
+                    if (!string.IsNullOrEmpty(filteringParams.FilterString))
+                    {
+                        vehicleModels = _unitOfWork.VehicleModel.FindAllWithMake().Where(q => q.VehicleMake.Name.Contains(filteringParams.FilterString)).AsQueryable();
+                    }
+                    else vehicleModels = null;
+
+                    //sorting
+                    switch (sortingParams.SortOrder)
+                    {
+                        case "name_desc":
+                            vehicleModels = vehicleModels != null ? vehicleModels.OrderByDescending(q => q.VehicleMake.Name).AsQueryable() : _unitOfWork.VehicleModel.FindAllWithMake().OrderByDescending(q => q.VehicleMake.Name).AsQueryable();
+                            break;
+
+                        default:
+                            vehicleModels = vehicleModels != null ? vehicleModels.OrderBy(q => q.VehicleMake.Name).AsQueryable() : _unitOfWork.VehicleModel.FindAllWithMake().OrderBy(q => q.VehicleMake.Name).AsQueryable();
+                            break;
+                    }
+
+                    return _mapper.Map<IList<VehicleModel>>(await PaginationList<VehicleModel>.CreateAsync(vehicleModels, pagingParams.PageNumber ?? 1, pagingParams.PageSize ?? 5)).ToList();
+                }
+                catch (Exception)
+                {
+                    return null;
+                }
+            }
+
         }
 
-        public Task<VehicleModel> UpdateAsync(int id, VehicleModel vehicleModel)
+    
+
+        public async Task<VehicleModel> FindVehicleModelById(int id)
         {
-            throw new NotImplementedException();
+            return await _unitOfWork.VehicleModel.FindByIdWithMake(id);
+        }
+
+        public async Task<VehicleModel> UpdateAsync(int id, VehicleModel vehicleModel)
+        {
+            var vehicleModelToUpdate = await _unitOfWork.VehicleModel.FindById(id);
+
+            if (string.IsNullOrEmpty(vehicleModel.Name))
+            {
+                vehicleModelToUpdate.Name = vehicleModelToUpdate.Name;
+            }
+            else
+            {
+                vehicleModelToUpdate.Name = vehicleModel.Name;
+            }
+
+
+            if (string.IsNullOrEmpty(vehicleModel.Abrv))
+            {
+                vehicleModelToUpdate.Abrv = vehicleModelToUpdate.Abrv;
+            }
+            else
+            {
+                vehicleModelToUpdate.Abrv = vehicleModel.Abrv;
+            }
+
+            _unitOfWork.VehicleModel.Update(vehicleModelToUpdate);
+            await _unitOfWork.CommitAsync();
+
+
+            return vehicleModelToUpdate;
+
         }
     }
 }

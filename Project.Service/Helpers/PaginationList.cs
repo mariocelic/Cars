@@ -19,7 +19,7 @@ namespace Project.Service.Helpers
             this.AddRange(items);
         }
 
-        public bool PreviousPage
+        public bool HasPreviousPage
         {
             get
             {
@@ -27,7 +27,7 @@ namespace Project.Service.Helpers
             }
         }
 
-        public bool NextPage
+        public bool HasNextPage
         {
             get
             {
@@ -39,6 +39,7 @@ namespace Project.Service.Helpers
         {
             var count = await source.CountAsync();
             var items = await source.Skip((pageIndex - 1) * pageSize).Take(pageSize).ToListAsync();
+           
             return new PaginationList<T>(items, count, pageIndex, pageSize);
         }
     }
