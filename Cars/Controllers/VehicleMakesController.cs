@@ -29,7 +29,6 @@ namespace Cars.Controllers
 
         // GET: VehicleMakes
         [Authorize(Roles = "Administrator, Employee")]
-<<<<<<< HEAD
         
         public async Task<IActionResult> Index(SortingParameters sortingParameters, FilteringParameters filteringParameters, PagingParameters pagingParameters)
         {
@@ -39,17 +38,6 @@ namespace Cars.Controllers
 
             
             List<VehicleMake> listOfVehicleMakes = _mapper.Map<List<VehicleMake>>(await _vehicleMakeService.FindAllMakesPaged(SortingParams, FilteringParams, PagingParams));
-=======
-        [HttpGet(Name ="GetPaginationMakes")]
-        [HttpHead]
-        public async Task<IActionResult> Index([FromQuery] QueryParameters queryParameters)
-        {
-            var SortingParams = new SortingParameters() { SortOrder = queryParameters.SortOrder };
-            var PagingParams = new PagingParameters() { PageNumber = queryParameters.PageNumber, PageSize = queryParameters.PageSize};
-            var FilteringParams = new FilteringParameters() { CurrentFilter = queryParameters.CurrentFilter, FilterString = queryParameters.FilterString };
-
-            List<VehicleMake> listOfVehicleMakes = _mapper.Map<List<VehicleMake>>(await _makeService.FindAllMakesPaged(SortingParams, FilteringParams, PagingParams));
->>>>>>> 3f6d77d7f70c248a71c9f35930ab82abd3d658c0
             if (listOfVehicleMakes == null) return BadRequest();
 
             return View(listOfVehicleMakes);
