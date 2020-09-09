@@ -37,7 +37,11 @@ namespace Project.Service.Services
 
         public async Task<VehicleMake> DeleteAsync(int id)
         {
+<<<<<<< HEAD
             var make = await _unitOfWork.VehicleMake.FindById(id);
+=======
+            var make = await _unitOfWork.VehicleMake.GetById(id);
+>>>>>>> 3f6d77d7f70c248a71c9f35930ab82abd3d658c0
 
             await _unitOfWork.VehicleMake.Delete(id);
             await _unitOfWork.CommitAsync();
@@ -46,6 +50,7 @@ namespace Project.Service.Services
 
         public async Task<IList<VehicleMake>> FindAllMakesPaged(ISortingParameters sortingParams, IFilteringParameters filteringParams, IPagingParameters pagingParams)
         {
+<<<<<<< HEAD
             
             IQueryable<VehicleMake> vehicleMakes;
 
@@ -90,16 +95,28 @@ namespace Project.Service.Services
                     return null;
                 }
             }
+=======
+
+            return await _unitOfWork.VehicleMake.FindAllMakesPaged(sortingParams, filteringParams, pagingParams);
+>>>>>>> 3f6d77d7f70c248a71c9f35930ab82abd3d658c0
         }
 
         public async Task<VehicleMake> FindVehicleMakeById(int id)
         {
+<<<<<<< HEAD
             return await _unitOfWork.VehicleMake.FindById(id);
+=======
+            return await _unitOfWork.VehicleMake.GetById(id);
+>>>>>>> 3f6d77d7f70c248a71c9f35930ab82abd3d658c0
         }
 
         public async Task<VehicleMake> UpdateAsync(int id, VehicleMake vehicleMake)
         {
+<<<<<<< HEAD
             var vehicleMakeToUpdate = await _unitOfWork.VehicleMake.FindById(id);
+=======
+            var vehicleMakeToUpdate = await _unitOfWork.VehicleMake.GetById(id);
+>>>>>>> 3f6d77d7f70c248a71c9f35930ab82abd3d658c0
 
             if (string.IsNullOrEmpty(vehicleMake.Name))
             {

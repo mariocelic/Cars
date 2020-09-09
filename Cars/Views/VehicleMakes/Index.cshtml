@@ -1,4 +1,9 @@
+<<<<<<< HEAD
 ﻿@model IList<Project.Service.Data.VehicleMake>
+=======
+﻿@model List<Project.Service.Data.VehicleMake>
+
+>>>>>>> 3f6d77d7f70c248a71c9f35930ab82abd3d658c0
 @using Microsoft.AspNetCore.Identity
 @inject SignInManager<IdentityUser> SignInManager
 @inject UserManager<IdentityUser> UserManager
@@ -16,7 +21,11 @@
 <form asp-action="Index" method="get">
     <div class="form-action no-color">
         <p>
+<<<<<<< HEAD
             Search by name: <input type="text" name="filterString" value="@ViewData["CurrentFilter"]" />
+=======
+            Search by name: <input type="text" name="searchString" value="@ViewData["CurrentFilter"]" />
+>>>>>>> 3f6d77d7f70c248a71c9f35930ab82abd3d658c0
             <input type="submit" value="Search" class="btn btn-secondary" />
             <a asp-action="Index">Return to list</a>
         </p>
@@ -75,7 +84,11 @@
                 {
                     pageSize = int.Parse(Context.Request.Query["pageSize"]);
                 }
+<<<<<<< HEAD
                 catch (Exception)
+=======
+                catch (Exception ex)
+>>>>>>> 3f6d77d7f70c248a71c9f35930ab82abd3d658c0
                 {
                     pageSize = 5;
                 }
@@ -84,7 +97,11 @@
                 {
                     currentPageNumber = int.Parse(Context.Request.Query["pageNumber"]);
                 }
+<<<<<<< HEAD
                 catch (Exception)
+=======
+                catch (Exception ex)
+>>>>>>> 3f6d77d7f70c248a71c9f35930ab82abd3d658c0
                 {
                     currentPageNumber = 1;
                 }
@@ -96,6 +113,7 @@
                 if (currentPageNumber != 1)
                 {
     @Html.ActionLink("Previous ", "Index", new { pageNumber = previousPage, pageSize = pageSize });
+<<<<<<< HEAD
 }
 
 if (Model.Count() != 0)
@@ -110,4 +128,19 @@ else
 <p>No more results!</p> } 
 }
 
+=======
+}
+
+if (Model.Count() != 0)
+{
+
+@Html.ActionLink(" Next", "Index", new { pageNumber = nextPage, pageSize = 5 });
+
+
+}
+else
+{
+<p>No more results!</p> } }
+
+>>>>>>> 3f6d77d7f70c248a71c9f35930ab82abd3d658c0
 
