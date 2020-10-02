@@ -38,8 +38,9 @@ namespace Cars.Controllers
             var SortingParams = new SortingParameters() { SortOrder = sortingParameters.SortOrder };            
             var FilteringParams = new FilteringParameters() { CurrentFilter = filteringParameters.CurrentFilter, FilterString = filteringParameters.FilterString };
             var PagingParams = new PagingParameters() { PageNumber = pagingParameters.PageNumber, PageSize = pagingParameters.PageSize ?? 5 };
-                       
-            
+
+            ViewBag.NameSortParam = string.IsNullOrEmpty(sortingParameters.SortOrder) ? "name_desc" : "";
+
             List<VehicleModel> listOfVehicleModels = _mapper.Map<List<VehicleModel>>(await _vehicleModelService.FindAllModelsPaged(SortingParams, FilteringParams, PagingParams));
             if (listOfVehicleModels == null) return BadRequest();
 

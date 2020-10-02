@@ -36,8 +36,11 @@ namespace Cars.Controllers
             var FilteringParams = new FilteringParameters() { CurrentFilter = filteringParameters.CurrentFilter, FilterString = filteringParameters.FilterString };
             var PagingParams = new PagingParameters() { PageNumber = pagingParameters.PageNumber, PageSize = pagingParameters.PageSize };
 
-            
-            List<VehicleMake> listOfVehicleMakes = _mapper.Map<List<VehicleMake>>(await _vehicleMakeService.FindAllMakesPaged(SortingParams, FilteringParams, PagingParams));
+            ViewBag.CurrentSort = sortingParameters.SortOrder;
+            ViewBag.PageNumber = pagingParameters.PageNumber;
+            ViewBag.NameSortParam = string.IsNullOrEmpty(sortingParameters.SortOrder) ? "name_desc" : "";
+
+            IList<VehicleMake> listOfVehicleMakes = _mapper.Map<IList<VehicleMake>>(await _vehicleMakeService.FindAllMakesPaged(SortingParams, FilteringParams, PagingParams));
             if (listOfVehicleMakes == null) return BadRequest();
 
             return View(listOfVehicleMakes);

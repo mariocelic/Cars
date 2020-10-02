@@ -3,9 +3,7 @@
 @inject SignInManager<IdentityUser> SignInManager
 @inject UserManager<IdentityUser> UserManager
 
-@{
-    ViewData["Title"] = "Index";
-}
+@{ ViewData["Title"] = "Index"; }
 
 <h1>Index</h1>
 
@@ -28,7 +26,8 @@
     <thead>
         <tr>
             <th>
-                <a asp-action="Index" asp-route-sortOrder="@ViewData["SortOrder"]">Name</a>
+                <a asp-action="Index"
+                   asp-route-sortOrder="@ViewBag.NameSortParam"> Name</a>
             </th>
             <th>
                 Abrv
@@ -40,62 +39,62 @@
         @foreach (var item in Model)
         {
 
-            <tr>
+<tr>
 
-                <td>
-                    @Html.DisplayFor(modelItem => item.Name)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Abrv)
-                </td>
+    <td>
+        @Html.DisplayFor(modelItem => item.Name)
+    </td>
+    <td>
+        @Html.DisplayFor(modelItem => item.Abrv)
+    </td>
 
-                @if (SignInManager.IsSignedIn(User))
-                {
-                    if (User.IsInRole("Administrator"))
-                    {
-                        <td>
-                            <a asp-action="Edit" asp-route-id="@item.MakeId">Edit</a> |
-                            <a asp-action="Details" asp-route-id="@item.MakeId">Details</a> |
-                            <a asp-action="Delete" asp-route-id="@item.MakeId">Delete</a>
-                        </td>
+    @if (SignInManager.IsSignedIn(User))
+    {
+        if (User.IsInRole("Administrator"))
+        {
+<td>
+    <a asp-action="Edit" asp-route-id="@item.MakeId">Edit</a> |
+    <a asp-action="Details" asp-route-id="@item.MakeId">Details</a> |
+    <a asp-action="Delete" asp-route-id="@item.MakeId">Delete</a>
+</td>
+               }
+}
 
-                    }
-                }
-
-            </tr>
-        }
+</tr>
+}
     </tbody>
 </table>
 
 
+
 @{ int currentPageNumber;
-                int pageSize;
+    int pageSize;
 
-                try
-                {
-                    pageSize = int.Parse(Context.Request.Query["pageSize"]);
-                }
-                catch (Exception)
-                {
-                    pageSize = 5;
-                }
+    try
+    {
+        pageSize = int.Parse(Context.Request.Query["pageSize"]);
+    }
+    catch (Exception)
+    {
+        pageSize = 5;
+    }
 
-    <p></p> try
-                {
-                    currentPageNumber = int.Parse(Context.Request.Query["pageNumber"]);
-                }
-                catch (Exception)
-                {
-                    currentPageNumber = 1;
-                }
+<p></p> try
+{
+    currentPageNumber = int.Parse(Context.Request.Query["pageNumber"]);
+}
+catch (Exception)
+{
+    currentPageNumber = 1;
+}
 
-                var nextPage = currentPageNumber + 1;
-                var previousPage = currentPageNumber - 1;
+var nextPage = currentPageNumber + 1;
+var previousPage = currentPageNumber - 1;
 
 
-                if (currentPageNumber != 1)
-                {
-    @Html.ActionLink("Previous ", "Index", new { pageNumber = previousPage, pageSize = pageSize });
+if (currentPageNumber != 1)
+{
+@Html.ActionLink("Previous ", "Index", new { pageNumber = previousPage, pageSize = pageSize });
 }
 
 if (Model.Count() != 0)
@@ -107,7 +106,5 @@ if (Model.Count() != 0)
 }
 else
 {
-<p>No more results!</p> } 
-}
-
+<p>No more results!</p> } }
 

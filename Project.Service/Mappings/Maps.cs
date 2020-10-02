@@ -18,8 +18,6 @@ namespace Project.Service.Mappings
             CreateMap<VehicleMakeDTO, IVehicleMakeDTO>().ReverseMap();
             CreateMap<VehicleModelDTO, IVehicleModelDTO>().ReverseMap();
 
-            CreateMap<List<VehicleMakeDTO>, List<IVehicleMakeDTO>>().ReverseMap();
-            CreateMap<List<VehicleMakeDTO>, List<IVehicleMakeDTO>>().ReverseMap();
         }
 
     }
